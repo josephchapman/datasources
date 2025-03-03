@@ -9,7 +9,7 @@ Library of Prometheus Exporters
 
 Run the example stack:
 ```bash
-cd example-stack
+cd example-stack/
 docker compose up
 ```
 

@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus:/etc/prometheus
-      - prometheus_data8:/prometheus
+      - prometheus_data:/prometheus
   grafana:
     container_name: grafana
     image: grafana/grafana
@@ -32,4 +32,4 @@ services:
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/dashboards:/var/lib/grafana/dashboards
 volumes:
-  prometheus_data8:
+  prometheus_data:
