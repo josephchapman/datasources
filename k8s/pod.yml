@@ -2,11 +2,13 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: prometheus-weather-exporter
+  name: prometheus-exporter-weather
+  labels:
+    app.kubernetes.io/name: prometheus-exporter-weather
 spec:
   containers:
-  - name: prometheus-weather-exporter
-    image: ghcr.io/josephchapman/prometheus-weather-exporter:master
+  - name: prometheus-exporter-weather
+    image: ghcr.io/josephchapman/prometheus-exporter-weather:master
     resources:
       limits:
         memory: "32Mi"
