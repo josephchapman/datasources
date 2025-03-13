@@ -9,6 +9,9 @@ spec:
   containers:
   - name: prometheus-exporter-weather
     image: ghcr.io/josephchapman/prometheus-exporter-weather:master
+    envFrom:
+    - configMapRef:
+        name: locations-env
     resources:
       limits:
         memory: "32Mi"
