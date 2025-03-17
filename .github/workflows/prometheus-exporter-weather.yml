@@ -3,9 +3,13 @@ name: prometheus-exporter-weather
 
 on:
   push:
+    paths:
+      - 'prometheus-exporter-weather/**'
     branches:
       - '**'
   pull_request:
+    paths:
+      - 'prometheus-exporter-weather/**'
     branches:
       - '**'
 

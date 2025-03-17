@@ -3,9 +3,13 @@ name: logger-speedrun
 
 on:
   push:
+    paths:
+      - 'logger-speedrun/**'
     branches:
       - '**'
   pull_request:
+    paths:
+      - 'logger-speedrun/**'
     branches:
       - '**'
 
