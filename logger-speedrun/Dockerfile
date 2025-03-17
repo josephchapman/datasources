@@ -9,20 +9,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/logger-speedrun .
 FROM scratch
 ENV SPEEDRUN_LEADERBOARDS='[ \
   { \
-    "game": "j1l9qz1g", \
-    "category": "z275w5k0", \
-    "values": { \
-      "p854r2vl": "5q85yy6q" \
-    } \
-  }, \
-  { \
-    "game": "76rljl68", \
-    "category": "jdzmjxkv", \
-    "values": { \
-      "6nj463vn": "01388y3q" \
-    } \
-  }, \
-  { \
     "game": "o1y9wo6q", \
     "category": "wkpoo02r", \
     "values": { \
