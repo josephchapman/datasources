@@ -22,6 +22,7 @@ type performed struct {
 
 func (l logEntry) log() (err error) {
 	log.SetOutput(os.Stdout)
+	log.SetFlags(0) // Disable date and timestamps
 
 	// lData, err := json.MarshalIndent(l, "", "  ")
 	lData, err := json.Marshal(l)
