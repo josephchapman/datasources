@@ -1,0 +1,25 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: logger-speedrun
+spec:
+  schedule: "0 20 * * *" # 20:00 every day
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 259200 # 3 days
+      template:
+        spec:
+          containers:
+          - name: logger-speedrun
+            image: ghcr.io/josephchapman/logger-speedrun:master
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: leaderboards-env
+            resources:
+              limits:
+                memory: "32Mi"
+                cpu: "50m"
+          restartPolicy: OnFailure
+

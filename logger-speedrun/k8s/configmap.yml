@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: leaderboards-env
+data:
+  SPEEDRUN_LEADERBOARDS: |
+    [
+      {
+        "game": "j1l9qz1g",
+        "category": "z275w5k0",
+        "values": {
+          "p854r2vl": "5q85yy6q"
+        }
+      },
+      {
+        "game": "76rljl68",
+        "category": "jdzmjxkv",
+        "values": {
+          "6nj463vn": "01388y3q"
+        }
+      }
+    ]

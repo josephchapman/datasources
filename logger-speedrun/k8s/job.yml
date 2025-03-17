@@ -1,0 +1,20 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: logger-speedrun
+spec:
+  ttlSecondsAfterFinished: 259200 # 3 days
+  template:
+    spec:
+      containers:
+      - name: logger-speedrun
+        image: ghcr.io/josephchapman/logger-speedrun:master
+        envFrom:
+        - configMapRef:
+            name: leaderboards-env
+        resources:
+          limits:
+            memory: "32Mi"
+            cpu: "50m"
+      restartPolicy: Never
