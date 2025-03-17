@@ -5,11 +5,15 @@ on:
   push:
     paths:
       - 'logger-speedrun/**'
+      - '!logger-speedrun/k8s/**'
+      - '!logger-speedrun/README.md'
     branches:
       - '**'
   pull_request:
     paths:
       - 'logger-speedrun/**'
+      - '!logger-speedrun/k8s/**'
+      - '!logger-speedrun/README.md'
     branches:
       - '**'
 
