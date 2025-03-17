@@ -7,6 +7,22 @@ spec:
   ttlSecondsAfterFinished: 259200 # 3 days
   template:
     spec:
+      initContainers:
+      - name: wait-for-loki
+        image: alpine:latest
+        args:
+        - /bin/sh
+        - -c
+        - >
+          set -x;
+          apk update;
+          apk add curl;
+          while [ $(curl -sw '%{http_code}' "http://loki.observability.svc.cluster.local:3100/loki/api/v1/query_range" -o /dev/null --data-urlencode 'query={job="sample"}') -ne 200 ]; do
+            sleep 15;
+            echo 'Waiting for HTTP200 from Loki'
+          done;
+          echo 'Received HTTP200 from Loki. InitContainer completing.';
+          sleep 30
       containers:
       - name: logger-speedrun
         image: ghcr.io/josephchapman/logger-speedrun:master
@@ -15,6 +31,6 @@ spec:
             name: leaderboards-env
         resources:
           limits:
-            memory: "32Mi"
+            memory: "128Mi"
             cpu: "50m"
-      restartPolicy: Never
+      restartPolicy: OnFailure
