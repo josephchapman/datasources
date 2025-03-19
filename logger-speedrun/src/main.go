@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// Define the -nocron flag to accept an integer value for minutes
-	sleepMinutes := flag.Int("nocron", 10, "Run in a loop with a sleep interval in minutes")
+	sleepMinutes := flag.Int("nocron", 0, "Run in a loop with a sleep interval in minutes")
 	flag.Parse()
 
 	for {
