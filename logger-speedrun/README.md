@@ -1,8 +1,9 @@
 # logger speedrun
 
 Produces log entries (to stdout) describing the current records in specified categories.
-Logs can be queried via logql and displayed in a dashboard
+Logs can be queried via logql and displayed in a dashboard.
 
+In a system that doesn't support cron, run the binary with the `-nocron <minutes>` flag to keep the process running in a loop that sleeps for `<minutes>` mintues.
 
 # Docker
 
