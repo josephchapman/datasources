@@ -1,12 +1,12 @@
 ---
+x-default-logging: &logging
+ driver: "fluentd"
+ options:
+   fluentd-address: "localhost:24224"
+   fluentd-async: "true"
+   fluentd-retry-wait: 1s
+   fluentd-max-retries: 10
 services:
-  prometheus-exporter-weather:
-    container_name: prometheus-exporter-weather
-    build: ../prometheus-exporter-weather/
-    env_file: ../prometheus-exporter-weather/locations.env
-    ports:
-      - 2112:2112
-    restart: unless-stopped
   prometheus:
     container_name: prometheus
     image: prom/prometheus
@@ -31,5 +31,40 @@ services:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/dashboards:/var/lib/grafana/dashboards
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector-contrib
+    restart: unless-stopped
+    command: [ "--config=/etc/otel-config.yml" ]
+    volumes:
+      - ./otel/otel-config.yml:/etc/otel-config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    ports:
+      - "24224:24224"   # Fluentforward receiver
+    depends_on:
+      - loki
+  prometheus-exporter-weather:
+    container_name: prometheus-exporter-weather
+    build: ../prometheus-exporter-weather/
+    env_file: ../prometheus-exporter-weather/locations.env
+    ports:
+      - 2112:2112
+    restart: unless-stopped
+    logging: *logging
+  logger-speedrun:
+    container_name: logger-speedrun
+    build: ../logger-speedrun/
+    env_file: ../logger-speedrun/leaderboards.env
+    restart: on-failure
+    logging: *logging
+    command: # arguments to entrypoint, emulating cron
+    - -nocron
+    - '60' # runs in a loop, sleeping for 60 mins
 volumes:
   prometheus_data:

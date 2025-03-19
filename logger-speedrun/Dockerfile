@@ -25,4 +25,4 @@ ENV SPEEDRUN_LEADERBOARDS='[ \
 ]'
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /bin/logger-speedrun /usr/local/bin/logger-speedrun
-CMD ["/usr/local/bin/logger-speedrun"]
+ENTRYPOINT ["/usr/local/bin/logger-speedrun"]
