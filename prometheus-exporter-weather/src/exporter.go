@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -89,39 +91,28 @@ func NewWeather(l location, m *metrics) (w weather, err error) {
 	err = w.updateAPI()
 	if err != nil {
 		err = fmt.Errorf("w.updateAPI(): %w", err)
-		return weather{}, err
+		return weather{}, WrapError(err)
 	}
 
 	err = w.updateMetrics()
 	if err != nil {
 		err = fmt.Errorf("w.updateMetrics(): %w", err)
-		return weather{}, err
+		return weather{}, WrapError(err)
 	}
 
 	return w, nil
 }
 
 func (w weather) printToConsole() (err error) {
+	log.SetOutput(os.Stdout)
+	log.SetFlags(0) // Disable date and timestamps
+	wData, err := json.MarshalIndent(w, "", "  ")
+	if err != nil {
+		err = fmt.Errorf("json.MarshalIndent: %w", err)
+		return WrapError(err)
+	}
+	log.Println(string(wData))
 
-	fmt.Printf("Location: %v\n", w.Location)
-	fmt.Printf("Latitude: %.2f\n", w.ApiData.Latitude)
-	fmt.Printf("Longitude: %.2f\n", w.ApiData.Longitude)
-	fmt.Printf("Utc_offset_seconds: %.0f\n", w.ApiData.Utc_offset_seconds)
-	fmt.Printf("Timezone: %s\n", w.ApiData.Timezone)
-	fmt.Printf("Timezone_abbreviation: %s\n", w.ApiData.Timezone_abbreviation)
-	fmt.Printf("Elevation: %.0f\n", w.ApiData.Elevation)
-	fmt.Printf("Time: %s %s\n", w.ApiData.Current.Time, w.ApiData.Current_units.Time)
-	fmt.Printf("Interval: %.0f %s\n", w.ApiData.Current.Interval, w.ApiData.Current_units.Interval)
-	fmt.Printf("Temperature_2m: %.1f %s\n", w.ApiData.Current.Temperature_2m, w.ApiData.Current_units.Temperature_2m)
-	fmt.Printf("Relative_humidity_2m: %.0f %s\n", w.ApiData.Current.Relative_humidity_2m, w.ApiData.Current_units.Relative_humidity_2m)
-	fmt.Printf("Apparent_temperature: %.1f %s\n", w.ApiData.Current.Apparent_temperature, w.ApiData.Current_units.Apparent_temperature)
-	fmt.Printf("Precipitation: %.0f %s\n", w.ApiData.Current.Precipitation, w.ApiData.Current_units.Precipitation)
-	fmt.Printf("Rain: %.0f %s\n", w.ApiData.Current.Rain, w.ApiData.Current_units.Rain)
-	fmt.Printf("Showers: %.0f %s\n", w.ApiData.Current.Showers, w.ApiData.Current_units.Showers)
-	fmt.Printf("Cloud_cover: %.0f %s\n", w.ApiData.Current.Cloud_cover, w.ApiData.Current_units.Cloud_cover)
-	fmt.Printf("Wind_speed_10m: %.1f %s\n", w.ApiData.Current.Wind_speed_10m, w.ApiData.Current_units.Wind_speed_10m)
-	fmt.Printf("Wind_direction_10m: %.0f %s\n", w.ApiData.Current.Wind_direction_10m, w.ApiData.Current_units.Wind_direction_10m)
-	fmt.Printf("Wind_gusts_10m: %.1f %s\n", w.ApiData.Current.Wind_gusts_10m, w.ApiData.Current_units.Wind_gusts_10m)
 	return nil
 }
 
@@ -131,28 +122,28 @@ func (w *weather) updateAPI() (err error) {
 	url, err := w.Location.endpoint()
 	if err != nil {
 		err = fmt.Errorf("w.Location.endpoint(): %w", err)
-		return err
+		return WrapError(err)
 	}
 
 	// Query the endpoint to receive updated data
 	data, err := queryAPI(url)
 	if err != nil {
 		err = fmt.Errorf("queryAPI(): %w", err)
-		return err
+		return WrapError(err)
 	}
 
 	// Convert the map to JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		err = fmt.Errorf("json.Marshal: %w", err)
-		return err
+		return WrapError(err)
 	}
 
 	// Unmarshal the JSON data into the weather struct
 	err = json.Unmarshal(jsonData, &w.ApiData)
 	if err != nil {
 		err = fmt.Errorf("json.Unmarshal: %w", err)
-		return err
+		return WrapError(err)
 	}
 
 	return nil

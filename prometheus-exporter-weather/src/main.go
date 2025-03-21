@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -22,9 +20,9 @@ func main() {
 
 	http.Handle("/metrics", handler)
 
-	fmt.Fprintln(os.Stderr, "Listening :2112/tcp")
+	WrapOut("Listening :2112/tcp")
 	err := http.ListenAndServe(":2112", nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		WrapError(err)
 	}
 }

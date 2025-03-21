@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -55,7 +54,7 @@ func periodicCheck(locations []location, m *metrics) (err error) {
 		w, err := NewWeather(loc, m)
 		if err != nil {
 			err = fmt.Errorf("NewWeather: %w", err)
-			return err
+			return WrapError(err)
 		}
 		weathers[i] = w
 	}
@@ -83,7 +82,8 @@ func periodicCheck(locations []location, m *metrics) (err error) {
 
 		// Calculate the sleep duration until the next target time
 		sleepDuration := time.Until(nextTarget)
-		log.Printf("Sleeping until next API update at %v (for %v).", nextTarget, sleepDuration)
+		str := fmt.Sprintf("Sleeping until next API update at %v (for %v).", nextTarget, sleepDuration)
+		WrapOut(str)
 		time.Sleep(sleepDuration)
 
 		// Update API and metrics
@@ -167,15 +167,17 @@ func definePrometheusRegistry() (*prometheus.Registry, *metrics) {
 func osEnvVarToLocations() (locations []location) {
 	weatherLocations := os.Getenv("WEATHER_LOCATIONS")
 	if weatherLocations == "" {
-		fmt.Println("WEATHER_LOCATIONS environment variable is not set")
-		return
+		err := fmt.Errorf("WEATHER_LOCATIONS environment variable is not set")
+		WrapError(err)
+		panic(err)
 	}
 
 	// Unmarshal the JSON data into a slice of location structs
 	err := json.Unmarshal([]byte(weatherLocations), &locations)
 	if err != nil {
-		fmt.Printf("Error unmarshalling WEATHER_LOCATIONS: %v\n", err)
-		return
+		err := fmt.Errorf("error unmarshalling WEATHER_LOCATIONS: %v", err)
+		WrapError(err)
+		panic(err)
 	}
 	return locations
 }
