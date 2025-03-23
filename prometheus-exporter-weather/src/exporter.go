@@ -91,13 +91,13 @@ func NewWeather(l location, m *metrics) (w weather, err error) {
 	err = w.updateAPI()
 	if err != nil {
 		err = fmt.Errorf("w.updateAPI(): %w", err)
-		return weather{}, WrapError(err)
+		return weather{}, LoggedError(err)
 	}
 
 	err = w.updateMetrics()
 	if err != nil {
 		err = fmt.Errorf("w.updateMetrics(): %w", err)
-		return weather{}, WrapError(err)
+		return weather{}, LoggedError(err)
 	}
 
 	return w, nil
@@ -109,7 +109,7 @@ func (w weather) printToConsole() (err error) {
 	wData, err := json.MarshalIndent(w, "", "  ")
 	if err != nil {
 		err = fmt.Errorf("json.MarshalIndent: %w", err)
-		return WrapError(err)
+		return LoggedError(err)
 	}
 	log.Println(string(wData))
 
@@ -122,28 +122,28 @@ func (w *weather) updateAPI() (err error) {
 	url, err := w.Location.endpoint()
 	if err != nil {
 		err = fmt.Errorf("w.Location.endpoint(): %w", err)
-		return WrapError(err)
+		return LoggedError(err)
 	}
 
 	// Query the endpoint to receive updated data
 	data, err := queryAPI(url)
 	if err != nil {
 		err = fmt.Errorf("queryAPI(): %w", err)
-		return WrapError(err)
+		return LoggedError(err)
 	}
 
 	// Convert the map to JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		err = fmt.Errorf("json.Marshal: %w", err)
-		return WrapError(err)
+		return LoggedError(err)
 	}
 
 	// Unmarshal the JSON data into the weather struct
 	err = json.Unmarshal(jsonData, &w.ApiData)
 	if err != nil {
 		err = fmt.Errorf("json.Unmarshal: %w", err)
-		return WrapError(err)
+		return LoggedError(err)
 	}
 
 	return nil

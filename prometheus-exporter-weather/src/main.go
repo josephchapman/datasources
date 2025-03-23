@@ -6,6 +6,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+const applicationName = "prometheus-exporter-weather"
+
 func main() {
 	// Read the WEATHER_LOCATIONS environment variable
 	locations := osEnvVarToLocations()
@@ -20,9 +22,9 @@ func main() {
 
 	http.Handle("/metrics", handler)
 
-	WrapOut("Listening :2112/tcp")
+	logOut.Info("Listening :2112/tcp")
 	err := http.ListenAndServe(":2112", nil)
 	if err != nil {
-		WrapError(err)
+		LoggedError(err)
 	}
 }

@@ -1,71 +1,54 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
+	"context"
+	"log/slog"
 	"os"
-	"time"
 )
 
-// Custom log entry structure
-type LogEntry struct {
-	Application string `json:"application"`
-	Timestamp   string `json:"timestamp"`
-	Stream      string `json:"stream"`
-	Message     string `json:"message"`
+// CustomHandler is a wrapper around slog.Handler that adds the "application" key:value pair to every log entry
+type CustomHandler struct {
+	handler slog.Handler
 }
 
-// JSONLogger is a custom logger that outputs JSON-formatted log entries
-type JSONLogger struct {
-	logger *log.Logger
-	stream string
+func (h *CustomHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.handler.Enabled(ctx, level)
 }
 
-// NewJSONLogger creates a new JSONLogger
-func NewJSONLoggerOut() *JSONLogger {
-	return &JSONLogger{
-		logger: log.New(os.Stdout, "", 0), // Disable default log flags
-		stream: "stdout",
-	}
+func (h *CustomHandler) Handle(ctx context.Context, r slog.Record) error {
+	r.AddAttrs(slog.String("application", applicationName))
+	return h.handler.Handle(ctx, r)
 }
 
-// NewJSONLogger creates a new JSONLogger
-func NewJSONLoggerErr() *JSONLogger {
-	return &JSONLogger{
-		logger: log.New(os.Stderr, "", 0), // Disable default log flags
-		stream: "stderr",
-	}
+func (h *CustomHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &CustomHandler{handler: h.handler.WithAttrs(attrs)}
 }
 
-// Println logs a message in JSON format
-func (jl *JSONLogger) Println(v ...interface{}) {
-	entry := LogEntry{
-		Application: "prometheus-exporter-weather",
-		Timestamp:   time.Now().Format(time.RFC3339),
-		Stream:      jl.stream,
-		Message:     fmt.Sprint(v...),
-	}
-	jsonData, err := json.Marshal(entry)
+func (h *CustomHandler) WithGroup(name string) slog.Handler {
+	return &CustomHandler{handler: h.handler.WithGroup(name)}
+}
+
+// Define global log handlers
+var (
+	// stdout including and over level Info
+	jsonHandlerStdout = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+	customHandlerStdout = &CustomHandler{handler: jsonHandlerStdout}
+	logOut              = slog.New(customHandlerStdout)
+
+	// stderr including and over level ERROR
+	jsonHandlerStderr = slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelError,
+	})
+	customHandlerStderr = &CustomHandler{handler: jsonHandlerStderr}
+	logErr              = slog.New(customHandlerStderr)
+)
+
+// LoggedError outputs the error to stderr as JSON with `"level":"ERROR"`, and returns the error
+func LoggedError(err error) error {
 	if err != nil {
-		log.Println("Error marshaling log entry:", err)
-		return
-	}
-	jl.logger.Println(string(jsonData))
-}
-
-// WrapError logs the error in JSON format and returns the original error
-func WrapError(err error) error {
-	if err != nil {
-		jsonLogger := NewJSONLoggerErr()
-		jsonLogger.Println(err)
+		logErr.Error(err.Error())
 	}
 	return err
-}
-
-// WrapOut logs the string in JSON format and returns the original string
-func WrapOut(str string) string {
-	jsonLogger := NewJSONLoggerOut()
-	jsonLogger.Println(str)
-	return str
 }
