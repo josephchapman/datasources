@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const applicationName = "logger-speedrun"
+
 func main() {
 	// Define the -nocron flag to accept an integer value for minutes
 	sleepMinutes := flag.Int("nocron", 0, "Run in a loop with a sleep interval in minutes")
@@ -17,23 +19,29 @@ func main() {
 		// Read the environment variable
 		envVar := os.Getenv("SPEEDRUN_LEADERBOARDS")
 		if envVar == "" {
-			fmt.Println("SPEEDRUN_LEADERBOARDS environment variable is not set")
-			return
+			err := fmt.Errorf("SPEEDRUN_LEADERBOARDS environment variable is not set")
+			LoggedError(err)
+			panic(err)
 		}
 
 		// Unmarshal the JSON array from the environment variable
 		var leaderboards []leaderboard
 		err := json.Unmarshal([]byte(envVar), &leaderboards)
 		if err != nil {
-			fmt.Printf("Error unmarshalling JSON: %v\n", err)
-			return
+			err = fmt.Errorf("json.Unmarshal: %w", err)
+			LoggedError(err)
+			panic(err)
 		}
 
 		// Iterate through the slice and process each leaderboard
 		for _, l := range leaderboards {
 			l.updateAPI()
-			entry, _ := l.NewLogEntry()
-			entry.log()
+			cr, _ := l.NewCurrentRecord()
+			err := cr.log()
+			if err != nil {
+				err = fmt.Errorf("cr.log(): %w", err)
+				LoggedError(err)
+			}
 		}
 
 		// If -nocron flag is not set, exit the loop

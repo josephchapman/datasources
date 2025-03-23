@@ -1,25 +1,43 @@
 package main
 
 import (
-	"log"
+	"context"
+	"log/slog"
 	"os"
 )
 
-// Custom error type that wraps the original error and logs it
-type LoggedError struct {
-	Err error
+// CustomHandler is a wrapper around slog.Handler that adds the "application" key:value pair to every log entry
+type CustomHandler struct {
+	handler slog.Handler
 }
 
-func (e *LoggedError) Error() string {
-	return e.Err.Error()
+func (h *CustomHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.handler.Enabled(ctx, level)
 }
 
-// WrapError logs the error and returns a LoggedError
-func WrapError(err error) error {
+func (h *CustomHandler) Handle(ctx context.Context, r slog.Record) error {
+	r.AddAttrs(slog.String("application", applicationName))
+	return h.handler.Handle(ctx, r)
+}
+
+func (h *CustomHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &CustomHandler{handler: h.handler.WithAttrs(attrs)}
+}
+
+func (h *CustomHandler) WithGroup(name string) slog.Handler {
+	return &CustomHandler{handler: h.handler.WithGroup(name)}
+}
+
+// LogError logs the error to stderr
+func LoggedError(err error) error {
+	jsonHandlerErr := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelError,
+	})
+	customHandlerErr := &CustomHandler{handler: jsonHandlerErr}
+	logErr := slog.New(customHandlerErr)
+
 	if err != nil {
-		log.SetOutput(os.Stderr)
-		log.Println(err)
-		return &LoggedError{Err: err}
+		logErr.Error(err.Error())
 	}
-	return nil
+	return err
 }

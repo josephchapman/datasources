@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"os"
 	"time"
 )
 
@@ -56,6 +58,30 @@ type leaderboard struct {
 	Runs     []runElement      `json:"runs"`
 }
 
+type performed struct {
+	Datetime  string `json:"date_time"`
+	Timesince string `json:"time_since"`
+}
+
+type currentRecord struct {
+	Game      string    `json:"game"`
+	Category  string    `json:"category"`
+	Player    string    `json:"player"`
+	Time      string    `json:"time"`
+	Performed performed `json:"submitted"`
+}
+
+func (cr currentRecord) log() (err error) {
+	jsonHandlerOut := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+	customHandlerErr := &CustomHandler{handler: jsonHandlerOut}
+	logOut := slog.New(customHandlerErr)
+
+	logOut.Info("Current record retrieved", slog.Any("current_record", cr))
+	return err
+}
+
 func (l leaderboard) endpoint() (url string, err error) {
 	baseURL := fmt.Sprintf("https://www.speedrun.com/api/v1/leaderboards/%s/category/%s?&top=1", l.Game, l.Category)
 
@@ -74,34 +100,34 @@ func (l *leaderboard) updateAPI() (err error) {
 	url, err := l.endpoint()
 	if err != nil {
 		err = fmt.Errorf("w.Location.endpoint(): %w", err)
-		return err
+		return LoggedError(err)
 	}
 
 	// Query the endpoint to receive updated data
 	data, err := queryAPI(url)
 	if err != nil {
 		err = fmt.Errorf("queryAPI(): %w", err)
-		return err
+		return LoggedError(err)
 	}
 
 	// Convert the map to JSON
 	jsonData, err := json.Marshal(data["data"])
 	if err != nil {
 		err = fmt.Errorf("json.Marshal: %w", err)
-		return err
+		return LoggedError(err)
 	}
 
 	// Unmarshal the JSON data into the leaderboard struct
 	err = json.Unmarshal(jsonData, &l)
 	if err != nil {
 		err = fmt.Errorf("json.Unmarshal: %w", err)
-		return err
+		return LoggedError(err)
 	}
 
 	return nil
 }
 
-func (l leaderboard) NewLogEntry() (entry logEntry, err error) {
+func (l leaderboard) NewCurrentRecord() (cr currentRecord, err error) {
 	g := game{
 		Id: l.Game,
 	}
@@ -124,13 +150,14 @@ func (l leaderboard) NewLogEntry() (entry logEntry, err error) {
 	// Calculate the time since submission
 	date, err := time.Parse("2006-01-02", l.Runs[0].Run.Date)
 	if err != nil {
-		return entry, fmt.Errorf("time.Parse: %w", err)
+		err = fmt.Errorf("time.Parse: %w", err)
+		return cr, LoggedError(err)
 	}
 	timeSince := time.Since(date)
 	days := int(timeSince.Hours() / 24)
 	timeSinceStr := fmt.Sprintf("%d days ago", days)
 
-	entry = logEntry{
+	cr = currentRecord{
 		Game:     g.Names["international"],
 		Category: c.Name,
 		Player:   u.Names["international"],
@@ -141,5 +168,5 @@ func (l leaderboard) NewLogEntry() (entry logEntry, err error) {
 		},
 	}
 
-	return entry, nil
+	return cr, nil
 }
