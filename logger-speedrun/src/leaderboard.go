@@ -59,8 +59,8 @@ type leaderboard struct {
 }
 
 type performed struct {
-	Datetime string `json:"date_time"`
-	DaysAgo  int    `json:"days_ago"`
+	Date    string `json:"date"`
+	DaysAgo int    `json:"days_ago"`
 }
 
 type currentRecord struct {
@@ -163,8 +163,8 @@ func (l leaderboard) NewCurrentRecord() (cr currentRecord, err error) {
 		Player:   u.Names["international"],
 		Time:     humanReadableTime,
 		Performed: performed{
-			Datetime: l.Runs[0].Run.Date,
-			DaysAgo:  timeSinceStr,
+			Date:    l.Runs[0].Run.Date,
+			DaysAgo: timeSinceStr,
 		},
 	}
 
