@@ -59,8 +59,8 @@ type leaderboard struct {
 }
 
 type performed struct {
-	Datetime  string `json:"date_time"`
-	Timesince string `json:"time_since"`
+	Datetime string `json:"date_time"`
+	DaysAgo  int    `json:"days_ago"`
 }
 
 type currentRecord struct {
@@ -68,7 +68,7 @@ type currentRecord struct {
 	Category  string    `json:"category"`
 	Player    string    `json:"player"`
 	Time      string    `json:"time"`
-	Performed performed `json:"submitted"`
+	Performed performed `json:"performed"`
 }
 
 func (cr currentRecord) log() (err error) {
@@ -155,7 +155,7 @@ func (l leaderboard) NewCurrentRecord() (cr currentRecord, err error) {
 	}
 	timeSince := time.Since(date)
 	days := int(timeSince.Hours() / 24)
-	timeSinceStr := fmt.Sprintf("%d days ago", days)
+	timeSinceStr := days
 
 	cr = currentRecord{
 		Game:     g.Names["international"],
@@ -163,8 +163,8 @@ func (l leaderboard) NewCurrentRecord() (cr currentRecord, err error) {
 		Player:   u.Names["international"],
 		Time:     humanReadableTime,
 		Performed: performed{
-			Datetime:  l.Runs[0].Run.Date,
-			Timesince: timeSinceStr,
+			Datetime: l.Runs[0].Run.Date,
+			DaysAgo:  timeSinceStr,
 		},
 	}
 
