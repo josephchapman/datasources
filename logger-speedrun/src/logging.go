@@ -28,14 +28,25 @@ func (h *CustomHandler) WithGroup(name string) slog.Handler {
 	return &CustomHandler{handler: h.handler.WithGroup(name)}
 }
 
-// LogError logs the error to stderr
-func LoggedError(err error) error {
-	jsonHandlerErr := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+// Define global log handlers
+var (
+	// stdout including and over level Info
+	jsonHandlerStdout = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+	customHandlerStdout = &CustomHandler{handler: jsonHandlerStdout}
+	logOut              = slog.New(customHandlerStdout)
+
+	// stderr including and over level ERROR
+	jsonHandlerStderr = slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		Level: slog.LevelError,
 	})
-	customHandlerErr := &CustomHandler{handler: jsonHandlerErr}
-	logErr := slog.New(customHandlerErr)
+	customHandlerStderr = &CustomHandler{handler: jsonHandlerStderr}
+	logErr              = slog.New(customHandlerStderr)
+)
 
+// LoggedError outputs the error to stderr as JSON with `"level":"ERROR"`, and returns the error
+func LoggedError(err error) error {
 	if err != nil {
 		logErr.Error(err.Error())
 	}
