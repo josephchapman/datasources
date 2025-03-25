@@ -1,10 +1,10 @@
 package main
 
 import (
+	"datasources/cmn"
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"os"
 	"time"
 )
 
@@ -72,13 +72,7 @@ type currentRecord struct {
 }
 
 func (cr currentRecord) log() (err error) {
-	jsonHandlerOut := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	})
-	customHandlerErr := &CustomHandler{handler: jsonHandlerOut}
-	logOut := slog.New(customHandlerErr)
-
-	logOut.Info("Current record retrieved", slog.Any("current_record", cr))
+	cmn.LogOut.Info("Current record retrieved", slog.Any("current_record", cr))
 	return err
 }
 
@@ -100,28 +94,28 @@ func (l *leaderboard) updateAPI() (err error) {
 	url, err := l.endpoint()
 	if err != nil {
 		err = fmt.Errorf("w.Location.endpoint(): %w", err)
-		return LoggedError(err)
+		return cmn.LoggedError(err)
 	}
 
 	// Query the endpoint to receive updated data
 	data, err := queryAPI(url)
 	if err != nil {
 		err = fmt.Errorf("queryAPI(): %w", err)
-		return LoggedError(err)
+		return cmn.LoggedError(err)
 	}
 
 	// Convert the map to JSON
 	jsonData, err := json.Marshal(data["data"])
 	if err != nil {
 		err = fmt.Errorf("json.Marshal: %w", err)
-		return LoggedError(err)
+		return cmn.LoggedError(err)
 	}
 
 	// Unmarshal the JSON data into the leaderboard struct
 	err = json.Unmarshal(jsonData, &l)
 	if err != nil {
 		err = fmt.Errorf("json.Unmarshal: %w", err)
-		return LoggedError(err)
+		return cmn.LoggedError(err)
 	}
 
 	return nil
@@ -151,7 +145,7 @@ func (l leaderboard) NewCurrentRecord() (cr currentRecord, err error) {
 	date, err := time.Parse("2006-01-02", l.Runs[0].Run.Date)
 	if err != nil {
 		err = fmt.Errorf("time.Parse: %w", err)
-		return cr, LoggedError(err)
+		return cr, cmn.LoggedError(err)
 	}
 	timeSince := time.Since(date)
 	days := int(timeSince.Hours() / 24)

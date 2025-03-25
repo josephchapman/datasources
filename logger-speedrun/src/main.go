@@ -1,6 +1,7 @@
 package main
 
 import (
+	"datasources/cmn"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -11,6 +12,8 @@ import (
 const applicationName = "logger-speedrun"
 
 func main() {
+	cmn.SetApplicationName(applicationName)
+
 	// Define the -nocron flag to accept an integer value for minutes
 	sleepMinutes := flag.Int("nocron", 0, "Run in a loop with a sleep interval in minutes")
 	flag.Parse()
@@ -20,7 +23,7 @@ func main() {
 		envVar := os.Getenv("SPEEDRUN_LEADERBOARDS")
 		if envVar == "" {
 			err := fmt.Errorf("SPEEDRUN_LEADERBOARDS environment variable is not set")
-			LoggedError(err)
+			cmn.LoggedError(err)
 			panic(err)
 		}
 
@@ -29,7 +32,7 @@ func main() {
 		err := json.Unmarshal([]byte(envVar), &leaderboards)
 		if err != nil {
 			err = fmt.Errorf("json.Unmarshal: %w", err)
-			LoggedError(err)
+			cmn.LoggedError(err)
 			panic(err)
 		}
 
@@ -40,7 +43,7 @@ func main() {
 			err := cr.log()
 			if err != nil {
 				err = fmt.Errorf("cr.log(): %w", err)
-				LoggedError(err)
+				cmn.LoggedError(err)
 			}
 		}
 

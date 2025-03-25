@@ -1,6 +1,7 @@
 package main
 
 import (
+	"datasources/cmn"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,31 +20,31 @@ func queryAPI(url string) (data map[string]interface{}, err error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		err = fmt.Errorf("http.Get: %w", err)
-		return nil, LoggedError(err)
+		return nil, cmn.LoggedError(err)
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("resp.StatusCode: %d", resp.StatusCode)
-		return nil, LoggedError(err)
+		return nil, cmn.LoggedError(err)
 	}
 
 	// Get the body of the response from the ReaderCloser interface into a Go variable 'body'
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		err = fmt.Errorf("io.ReadAll: %w", err)
-		return nil, LoggedError(err)
+		return nil, cmn.LoggedError(err)
 	}
 
 	// Convert the JSON data within 'body' to a Golang map in the 'data' var
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		err = fmt.Errorf("json.Unmarshal: %w", err)
-		return nil, LoggedError(err)
+		return nil, cmn.LoggedError(err)
 	}
 
-	return data, LoggedError(err)
+	return data, cmn.LoggedError(err)
 }
 
 func periodicCheck(locations []location, m *metrics) (err error) {
@@ -54,7 +55,7 @@ func periodicCheck(locations []location, m *metrics) (err error) {
 		w, err := NewWeather(loc, m)
 		if err != nil {
 			err = fmt.Errorf("NewWeather: %w", err)
-			return LoggedError(err)
+			return cmn.LoggedError(err)
 		}
 		weathers[i] = w
 	}
@@ -83,7 +84,7 @@ func periodicCheck(locations []location, m *metrics) (err error) {
 		// Calculate the sleep duration until the next target time
 		sleepDuration := time.Until(nextTarget)
 		str := fmt.Sprintf("Sleeping until next API update at %v (for %v).", nextTarget, sleepDuration)
-		logOut.Info(str)
+		cmn.LogOut.Info(str)
 		time.Sleep(sleepDuration)
 
 		// Update API and metrics
@@ -168,7 +169,7 @@ func osEnvVarToLocations() (locations []location) {
 	weatherLocations := os.Getenv("WEATHER_LOCATIONS")
 	if weatherLocations == "" {
 		err := fmt.Errorf("WEATHER_LOCATIONS environment variable is not set")
-		LoggedError(err)
+		cmn.LoggedError(err)
 		panic(err)
 	}
 
@@ -176,7 +177,7 @@ func osEnvVarToLocations() (locations []location) {
 	err := json.Unmarshal([]byte(weatherLocations), &locations)
 	if err != nil {
 		err := fmt.Errorf("error unmarshalling WEATHER_LOCATIONS: %v", err)
-		LoggedError(err)
+		cmn.LoggedError(err)
 		panic(err)
 	}
 	return locations
