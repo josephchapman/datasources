@@ -7,6 +7,14 @@
       "type": "datasource",
       "pluginId": "prometheus",
       "pluginName": "Prometheus"
+    },
+    {
+      "name": "DS_LOKI",
+      "label": "Loki",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "loki",
+      "pluginName": "Loki"
     }
   ],
   "__elements": {},
@@ -16,6 +24,18 @@
       "id": "grafana",
       "name": "Grafana",
       "version": "11.5.2"
+    },
+    {
+      "type": "panel",
+      "id": "logs",
+      "name": "Logs",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "loki",
+      "name": "Loki",
+      "version": "1.0.0"
     },
     {
       "type": "datasource",
@@ -55,7 +75,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "ERgg9hAnMdw4Lpf9"
       },
       "fieldConfig": {
         "defaults": {
@@ -68,8 +88,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "right",
-            "axisSoftMax": 40,
-            "axisSoftMin": -10,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -98,6 +116,8 @@
             }
           },
           "mappings": [],
+          "max": 40,
+          "min": -10,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -116,131 +136,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
-        "w": 8,
+        "h": 8,
+        "w": 24,
         "x": 0,
-        "y": 0
-      },
-      "id": 1,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.5.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"New York\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "New York",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"London\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "key": "Q-fc72be6d-9ffa-4440-8986-71e95656fc31-1",
-          "legendFormat": "London",
-          "range": true,
-          "refId": "B",
-          "useBackend": false
-        }
-      ],
-      "title": "Temperature (Actual)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "right",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 8,
-        "x": 8,
         "y": 0
       },
       "id": 2,
@@ -262,15 +160,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "ERgg9hAnMdw4Lpf9"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_cloud_cover_percent{location=\"New York\"}",
+          "expr": "weather_temperature_actual_celcius{location=\"Sydney\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "New York",
+          "key": "Q-14320877-41a3-4f59-8534-dedef44bb13e-0",
+          "legendFormat": "Sydney",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -278,28 +176,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "ERgg9hAnMdw4Lpf9"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_cloud_cover_percent{location=\"London\"}",
+          "expr": "weather_temperature_actual_celcius{location=\"Chicago\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "key": "Q-79949c79-48c1-467d-ac33-b8c0bb475775-1",
-          "legendFormat": "London",
+          "key": "Q-f2ce3ddf-3fe5-4769-a8d9-64b4610d168d-1",
+          "legendFormat": "Chicago",
           "range": true,
           "refId": "B",
           "useBackend": false
         }
       ],
-      "title": "Cloud Cover",
+      "title": "Temperature (Actual)",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "ERgg9hAnMdw4Lpf9"
       },
       "fieldConfig": {
         "defaults": {
@@ -360,12 +258,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
-        "w": 8,
+        "h": 8,
+        "w": 24,
         "x": 0,
-        "y": 15
+        "y": 8
       },
-      "id": 3,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -384,15 +282,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "ERgg9hAnMdw4Lpf9"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"New York\"}",
+          "expr": "weather_humidity_relative_percent{location=\"Sydney\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "New York",
+          "legendFormat": "Sydney",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -400,16 +298,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "ERgg9hAnMdw4Lpf9"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"London\"}",
+          "expr": "weather_humidity_relative_percent{location=\"Chicago\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "key": "Q-eef92ba9-eeb3-4b2e-a938-145795253b7e-1",
-          "legendFormat": "London",
+          "key": "Q-56b7cf41-9244-4b28-8fec-bf801be57d4c-1",
+          "legendFormat": "Chicago",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -421,7 +319,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "ERgg9hAnMdw4Lpf9"
       },
       "fieldConfig": {
         "defaults": {
@@ -434,7 +332,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "right",
-            "axisSoftMax": 40,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -463,6 +360,7 @@
             }
           },
           "mappings": [],
+          "max": 50,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -482,12 +380,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
-        "w": 8,
-        "x": 8,
-        "y": 15
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
       },
-      "id": 4,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -506,15 +404,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "ERgg9hAnMdw4Lpf9"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"New York\"}",
+          "expr": "weather_wind_speed_knots{location=\"Sydney\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "New York",
+          "legendFormat": "Sydney",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -522,16 +420,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "ERgg9hAnMdw4Lpf9"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"London\"}",
+          "expr": "weather_wind_speed_knots{location=\"Chicago\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "key": "Q-09134869-5729-4d81-8632-21666097f1f2-1",
-          "legendFormat": "London",
+          "key": "Q-9e7fd184-64d3-423d-9e76-498c813a03a7-1",
+          "legendFormat": "Chicago",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -539,6 +437,46 @@
       ],
       "title": "Wind Speed",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "ew4xLMxwfh3Yq3iA"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "ew4xLMxwfh3Yq3iA"
+          },
+          "direction": "backward",
+          "editorMode": "builder",
+          "expr": "{service_name=\"unknown_service\"} | json | application=\"prometheus-exporter-weather\" | line_format \"{{.msg}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs",
+      "type": "logs"
     }
   ],
   "refresh": "15m",
@@ -554,7 +492,7 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "Weather",
-  "uid": "beeql34sghtkwc",
-  "version": 12,
+  "uid": "eefqjem6pleyoa",
+  "version": 7,
   "weekStart": ""
 }
