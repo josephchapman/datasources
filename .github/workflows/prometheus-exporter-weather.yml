@@ -93,7 +93,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./prometheus-exporter-weather/Dockerfile
-          context: ./prometheus-exporter-weather
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

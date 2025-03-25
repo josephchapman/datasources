@@ -75,7 +75,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./logger-speedrun/Dockerfile
-          context: ./logger-speedrun
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
