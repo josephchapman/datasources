@@ -28,9 +28,9 @@ func (u *user) updateAPI() (err error) {
 	}
 
 	// Query the endpoint to receive updated data
-	data, err := queryAPI(url)
+	data, err := cmn.QueryAPI(url)
 	if err != nil {
-		err = fmt.Errorf("queryAPI(): %w", err)
+		err = fmt.Errorf("cmn.QueryAPI(): %w", err)
 		return cmn.LoggedError(err)
 	}
 
