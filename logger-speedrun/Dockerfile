@@ -2,8 +2,9 @@ FROM alpine:latest AS certs
 RUN apk --update add ca-certificates
 
 FROM golang:1.23.5 AS build
-WORKDIR /src
-COPY src/* ./
+COPY cmn/ /go/src/cmn/
+COPY logger-speedrun/src/ /go/src/logger-speedrun/src/
+WORKDIR /go/src/logger-speedrun/src/
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/logger-speedrun .
 
 FROM scratch

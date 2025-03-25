@@ -23,9 +23,8 @@ export WEATHER_LOCATIONS='[
 ```
 
 ```bash
-cd prometheus-exporter-weather/
-docker build -t prometheus-exporter-weather .
+docker build -t prometheus-exporter-weather -f prometheus-exporter-weather/Dockerfile .
 docker run -it --rm -p 2112:2112 prometheus-exporter-weather
 ```
 
-
+Note that the `cmn` directory is required in the build container, so the `docker build` command must be run from the top-level directory.

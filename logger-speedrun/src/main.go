@@ -1,12 +1,13 @@
 package main
 
 import (
-	"datasources/cmn"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/josephchapman/datasources/cmn"
 )
 
 const applicationName = "logger-speedrun"

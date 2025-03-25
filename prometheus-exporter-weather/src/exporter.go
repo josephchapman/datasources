@@ -1,11 +1,12 @@
 package main
 
 import (
-	"datasources/cmn"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/josephchapman/datasources/cmn"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

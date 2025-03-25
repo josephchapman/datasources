@@ -1,11 +1,12 @@
 package main
 
 import (
-	"datasources/cmn"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/josephchapman/datasources/cmn"
 )
 
 type runElement struct {

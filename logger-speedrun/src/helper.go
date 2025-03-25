@@ -1,11 +1,12 @@
 package main
 
 import (
-	"datasources/cmn"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/josephchapman/datasources/cmn"
 )
 
 // queries a URL and returns the data as a Golang map

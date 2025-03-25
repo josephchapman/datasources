@@ -41,9 +41,8 @@ export SPEEDRUN_LEADERBOARDS='[
 ```
 
 ```bash
-cd logger-speedrun/
-docker build -t logger-speedrun .
+docker build -t logger-speedrun -f logger-speedrun/Dockerfile .
 docker run logger-speedrun
 ```
 
-
+Note that the `cmn` directory is required in the build container, so the `docker build` command must be run from the top-level directory.

@@ -2,8 +2,9 @@ FROM alpine:latest AS certs
 RUN apk --update add ca-certificates
 
 FROM golang:1.23.5 AS build
-WORKDIR /src
-COPY src/* ./
+COPY cmn/ /go/src/cmn/
+COPY prometheus-exporter-weather/src/ /go/src/prometheus-exporter-weather/src/
+WORKDIR /go/src/prometheus-exporter-weather/src/
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/prometheus-exporter-weather .
 
 FROM scratch

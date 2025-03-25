@@ -1,8 +1,9 @@
 package main
 
 import (
-	"datasources/cmn"
 	"net/http"
+
+	"github.com/josephchapman/datasources/cmn"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )

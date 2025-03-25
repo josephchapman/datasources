@@ -1,9 +1,10 @@
 package main
 
 import (
-	"datasources/cmn"
 	"encoding/json"
 	"fmt"
+
+	"github.com/josephchapman/datasources/cmn"
 )
 
 type user struct {
