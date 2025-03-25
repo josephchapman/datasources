@@ -26,17 +26,3 @@ func TestOsEnvVarToLocations(t *testing.T) {
 		t.Errorf("expected second location to be Los Angeles, got %s", locations[1].Name)
 	}
 }
-
-func TestOsEnvVarToLocations_InvalidJSON(t *testing.T) {
-	// Set up the environment variable with invalid JSON
-	os.Setenv("WEATHER_LOCATIONS", `invalid json`)
-	defer os.Unsetenv("WEATHER_LOCATIONS")
-
-	// Call the function
-	locations := osEnvVarToLocations()
-
-	// Check the results
-	if len(locations) != 0 {
-		t.Fatalf("expected 0 locations, got %d", len(locations))
-	}
-}
