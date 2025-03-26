@@ -37,6 +37,9 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
   otel-collector:
     container_name: otel-collector
     image: otel/opentelemetry-collector-contrib
@@ -69,6 +72,7 @@ services:
     logging: *logging
     command: # arguments to entrypoint, emulating cron
     - -nocron
-    - '60' # runs in a loop, sleeping for 60 mins
+    - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
 volumes:
   prometheus_data:
+  loki_data:
