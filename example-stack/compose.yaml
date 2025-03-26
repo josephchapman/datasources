@@ -16,6 +16,8 @@ services:
     image: prom/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=365d'
+      - '--storage.tsdb.retention.size=8GB'
     ports:
       - 9090:9090
     restart: unless-stopped
