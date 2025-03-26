@@ -164,11 +164,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"Sydney\"}",
+          "expr": "weather_temperature_actual_celcius{location=\"New York\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "key": "Q-14320877-41a3-4f59-8534-dedef44bb13e-0",
-          "legendFormat": "Sydney",
+          "legendFormat": "New York",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -180,14 +179,29 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"Chicago\"}",
+          "expr": "weather_temperature_actual_celcius{location=\"London\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "key": "Q-f2ce3ddf-3fe5-4769-a8d9-64b4610d168d-1",
-          "legendFormat": "Chicago",
+          "legendFormat": "London",
           "range": true,
           "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "ERgg9hAnMdw4Lpf9"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "weather_temperature_actual_celcius{location=\"Tokyo\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "Tokyo",
+          "range": true,
+          "refId": "C",
           "useBackend": false
         }
       ],
@@ -286,11 +300,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"Sydney\"}",
+          "expr": "weather_humidity_relative_percent{location=\"New York\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "Sydney",
+          "legendFormat": "New York",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -302,14 +316,29 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"Chicago\"}",
+          "expr": "weather_humidity_relative_percent{location=\"London\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "key": "Q-56b7cf41-9244-4b28-8fec-bf801be57d4c-1",
-          "legendFormat": "Chicago",
+          "legendFormat": "London",
           "range": true,
           "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "ERgg9hAnMdw4Lpf9"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "weather_humidity_relative_percent{location=\"Tokyo\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "Tokyo",
+          "range": true,
+          "refId": "C",
           "useBackend": false
         }
       ],
@@ -408,11 +437,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"Sydney\"}",
+          "expr": "weather_wind_speed_knots{location=\"New York\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "Sydney",
+          "legendFormat": "New York",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -424,14 +453,29 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"Chicago\"}",
+          "expr": "weather_wind_speed_knots{location=\"London\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "key": "Q-9e7fd184-64d3-423d-9e76-498c813a03a7-1",
-          "legendFormat": "Chicago",
+          "legendFormat": "London",
           "range": true,
           "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "ERgg9hAnMdw4Lpf9"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "weather_wind_speed_knots{location=\"Tokyo\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "Tokyo",
+          "range": true,
+          "refId": "C",
           "useBackend": false
         }
       ],
@@ -493,6 +537,6 @@
   "timezone": "browser",
   "title": "Weather",
   "uid": "eefqjem6pleyoa",
-  "version": 7,
+  "version": 1,
   "weekStart": ""
 }
