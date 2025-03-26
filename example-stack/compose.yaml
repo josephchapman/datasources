@@ -7,6 +7,10 @@ x-default-logging: &logging
    fluentd-retry-wait: 1s
    fluentd-max-retries: 10
 services:
+  prom-pushgateway:
+    image: prom/pushgateway
+    ports: 
+      - 9091:9091
   prometheus:
     container_name: prometheus
     image: prom/prometheus
