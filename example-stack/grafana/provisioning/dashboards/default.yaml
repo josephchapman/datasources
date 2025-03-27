@@ -17,3 +17,11 @@ providers:
     allowUiUpdates: true
     options:
       path: /var/lib/grafana/dashboards/speedrun.json
+  - name: 'chess'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/chess.json

@@ -18,6 +18,11 @@ docker compose up
 http://localhost:9090
 ```
 
+### InfluxDB
+```bash
+http://localhost:8086
+```
+
 ### Grafana
 ```bash
 http://localhost:3000
@@ -30,3 +35,6 @@ Weather:
 
 Speedrun:
 ![Screenshot](dashboard_speedrun.png?raw=true "Screenshot of 'Speedrun' dashboard")
+
+Chess (after running the `replicator-chess` app):
+![Screenshot](dashboard_chess.png?raw=true "Screenshot of 'Chess' dashboard")
