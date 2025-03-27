@@ -15,3 +15,16 @@ datasources:
   # basicAuth: false
   # isDefault: false
   # editable: false
+- name: InfluxDB
+  type: influxdb
+  url: http://influxdb:8086
+  uid: "qEKFKeXVHztEvAw7"
+  jsonData:
+    dbName: "my-bucket"
+    defaultBucket: "my-bucket"
+    httpMode: "POST"
+    organization: "my-org"
+    version: "Flux"
+  secureJsonData:
+    token: my-super-secret-auth-token
+  editable: true
