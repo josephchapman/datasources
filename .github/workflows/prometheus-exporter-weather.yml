@@ -5,16 +5,16 @@ on:
   push:
     paths:
       - 'prometheus-exporter-weather/**'
-      - '!logger-speedrun/k8s/**'
-      - '!logger-speedrun/README.md'
+      - '!prometheus-exporter-weather/k8s/**'
+      - '!prometheus-exporter-weather/README.md'
       - 'cmn/**'
     branches:
       - '**'
   pull_request:
     paths:
       - 'prometheus-exporter-weather/**'
-      - '!logger-speedrun/k8s/**'
-      - '!logger-speedrun/README.md'
+      - '!prometheus-exporter-weather/k8s/**'
+      - '!prometheus-exporter-weather/README.md'
       - 'cmn/**'
     branches:
       - '**'
