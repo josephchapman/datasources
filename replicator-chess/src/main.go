@@ -16,8 +16,16 @@ func main() {
 	cmn.SetApplicationName(applicationName)
 
 	player := flag.String("player", "", "Pull ratings for this player into a TSDB")
+	sleepMinutes := flag.Int("nocron", 0, "Run in a loop with a sleep interval in minutes")
 	flag.Parse()
 
+	// Use a closure to pass the player variable to runTask
+	cmn.NoCron(func() {
+		runTask(player)
+	}, *sleepMinutes)
+}
+
+func runTask(player *string) {
 	// create writeAPI for influx
 	bucket := "my-bucket"
 	org := "my-org"
@@ -64,7 +72,8 @@ func main() {
 		panic(err)
 	}
 
-	record.printToConsole()
+	// debug
+	// record.printToConsole()
 
 	// User blocking write client for writes to desired bucket
 	writeAPI := client.WriteAPIBlocking(org, bucket)
