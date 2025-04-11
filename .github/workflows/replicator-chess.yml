@@ -1,0 +1,87 @@
+---
+name: replicator-chess
+
+on:
+  push:
+    paths:
+      - 'replicator-chess/**'
+      - '!replicator-chess/k8s/**'
+      - '!replicator-chess/README.md'
+      - 'cmn/**'
+    branches:
+      - '**'
+  pull_request:
+    paths:
+      - 'replicator-chess/**'
+      - '!replicator-chess/k8s/**'
+      - '!replicator-chess/README.md'
+      - 'cmn/**'
+    branches:
+      - '**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.actor }}/replicator-chess
+
+jobs:
+
+  build-replicator-chess:
+    name: Build replicator-chess
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.5'
+      
+      - name: Install dependencies
+        run: go get -C replicator-chess/src .
+
+      - name: Build
+        run: go build -C replicator-chess/src -v ./...
+
+  build-and-push-replicator-chess-image:
+    name: Build and push replicator-chess container
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          file: ./replicator-chess/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
