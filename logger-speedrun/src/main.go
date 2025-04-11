@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 
@@ -12,7 +13,11 @@ const applicationName = "logger-speedrun"
 
 func main() {
 	cmn.SetApplicationName(applicationName)
-	cmn.NoCron(runTask)
+
+	sleepMinutes := flag.Int("nocron", 0, "Run in a loop with a sleep interval in minutes")
+	flag.Parse()
+
+	cmn.NoCron(runTask, *sleepMinutes)
 }
 
 func runTask() {
