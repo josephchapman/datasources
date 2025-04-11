@@ -18,15 +18,16 @@ func main() {
 	cmn.SetApplicationName(applicationName)
 
 	sleepMinutes := flag.Int("nocron", 0, "Run in a loop with a sleep interval in minutes")
+	dbHost := flag.String("dbhost", "127.0.0.1", "The location of the TSDB")
 	flag.Parse()
 
 	// Use a closure to pass the player variable to runTask
 	cmn.NoCron(func() {
-		runTask()
+		runTask(dbHost)
 	}, *sleepMinutes)
 }
 
-func runTask() {
+func runTask(dbHost *string) {
 	// Read the environment variable
 	envVar := os.Getenv("PLAYERS")
 	if envVar == "" {
@@ -49,7 +50,7 @@ func runTask() {
 	org := "my-org"
 	token := "my-super-secret-auth-token"
 	// Store the URL of your InfluxDB instance
-	url := "http://localhost:8086"
+	url := fmt.Sprintf("http://%s:8086", *dbHost)
 	// Create new client with default option for server url authenticate by token
 	client := influxdb2.NewClient(url, token)
 
