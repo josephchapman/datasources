@@ -87,6 +87,8 @@ services:
       - 2112:2112
     restart: unless-stopped
     logging: *logging
+    depends_on:
+      - prometheus
   logger-speedrun:
     container_name: logger-speedrun
     build:
@@ -95,9 +97,26 @@ services:
     env_file: ../logger-speedrun/leaderboards.env
     restart: on-failure
     logging: *logging
-    command: # arguments to entrypoint, emulating cron
-    - -nocron
+    command: # arguments to entrypoint
+    - -nocron # emulating cron
     - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
+    depends_on:
+      - loki
+  replicator-chess:
+    container_name: replicator-chess
+    build:
+      context: ..
+      dockerfile: replicator-chess/Dockerfile
+    env_file: ../replicator-chess/players.env
+    restart: on-failure
+    logging: *logging
+    command: # arguments to entrypoint
+    - -nocron # emulating cron
+    - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
+    - -dbhost
+    - 'influxdb'
+    depends_on:
+      - influxdb
 volumes:
   prometheus_data:
   loki_data:
