@@ -1,27 +1,35 @@
 apiVersion: 1
 
 providers:
-  - name: 'weather'
+  - name: "weather"
     orgId: 1
-    folder: ''
+    folder: ""
     type: file
     disableDeletion: false
     allowUiUpdates: true
     options:
       path: /var/lib/grafana/dashboards/weather.json
-  - name: 'speedrun'
+  - name: "speedrun"
     orgId: 1
-    folder: ''
+    folder: ""
     type: file
     disableDeletion: false
     allowUiUpdates: true
     options:
       path: /var/lib/grafana/dashboards/speedrun.json
-  - name: 'chess'
+  - name: "chess"
     orgId: 1
-    folder: ''
+    folder: ""
     type: file
     disableDeletion: false
     allowUiUpdates: true
     options:
       path: /var/lib/grafana/dashboards/chess.json
+  - name: "chess-candlestick"
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/chess-candlestick.json
