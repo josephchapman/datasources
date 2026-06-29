@@ -14,7 +14,6 @@ services:
   prometheus:
     container_name: prometheus
     image: prom/prometheus
-    user: "1000" # run as host user to allow 0600 file permissions on the prometheus/prometheus.yml file
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.retention.time=365d'
