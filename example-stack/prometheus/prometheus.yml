@@ -35,12 +35,3 @@ scrape_configs:
           - prom-pushgateway:9091
         labels:
           service: "prom-pushgateway"
-  - job_name: weather
-    honor_timestamps: true
-    scrape_interval: 60s
-    scrape_timeout: 10s
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets:
-          - prometheus-exporter-weather:2112

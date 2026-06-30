@@ -188,9 +188,56 @@ OpenTelemetry is configured to listen for Fluent connections.
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┓ `compose.yaml` defines a loki service confirgured via:
 ┃ Loki                          │          ┃     ./loki/local-config.yaml
 ┃                               │          ┃
-┃ ┌─────────────────────────────▼────────┐ ┃ That configuration listends for `otlp` on `:3100`,
+┃ ┌─────────────────────────────▼────────┐ ┃ That configuration listens for `otlp` on `:3100`,
 ┃ │ server:                              │ ┃ and `compose.yaml` exposes the port:
 ┃ │   http_listen_port: 3100             │ ┃     loki:
 ┃ └──────────────────────────────────────┘ ┃       ports:
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛         - "3100:3100"
+```
+
+### Metrics
+
+Scrape method:
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ Applications may expose a `/metrics` endpoint on a port, such as:
+┃ Application                              ┃     ports:
+┃                                          ┃       - 2112:2112
+┃ ┌──────────────────────────────────────┐ ┃
+┃ │ :2112/metrics                        │ ┃
+┃ └─────────────────────────────┬────────┘ ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┛
+                                │
+                                │
+                                │
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┓ `compose.yaml` defines an otel-collector service configured via:
+┃ OpenTelemetry Collector       │          ┃     ./otelcol-contib/config.yaml
+┃                               │          ┃
+┃ ┌─────────────────────────────▼────────┐ ┃ That configuration scrapes metrics.
+┃ │ receiver:                            │ ┃
+┃ │   prometheus:                        │ ┃
+┃ │     config:                          │ ┃
+┃ │       scrape_configs:                │ ┃
+┃ │         - job_name: weather          │ ┃
+┃ │           static_configs:            │ ┃
+┃ │             - targets:               │ ┃
+┃ │                 - weather:2112       │ ┃
+┃ └─────────────────────────────┬────────┘ ┃
+┃                               │          ┃
+┃ ┌─────────────────────────────▼────────┐ ┃ It then sends the metrics via `prometheusremotewrite` to the metrics store at:
+┃ │ exporter:                            │ ┃     prometheus:9090/api/v1/write
+┃ │   prometheusremotewrite:             │ ┃
+┃ │     endpoint: prometheus/api/v1/write│ ┃
+┃ └─────────────────────────────┬────────┘ ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┛
+                                │
+                                │
+                                │
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┓ `compose.yaml` defines a Prometheus service confirgured via:
+┃ Prometheus                    │          ┃     ./prometheus/prometheus.yaml
+┃                               │          ┃
+┃ ┌─────────────────────────────▼────────┐ ┃ That configuration listens on:
+┃ │ command:                             │ ┃     prometheus:9090/api/v1/write
+┃ │   --web.enable-remote-write-receiver │ ┃
+┃ └──────────────────────────────────────┘ ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
