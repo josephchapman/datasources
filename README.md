@@ -126,3 +126,71 @@ Speedrun:
 
 Chess (after running the `replicator-chess` app):
 ![Screenshot](dashboard_chess.png?raw=true "Screenshot of 'Chess' dashboard")
+
+## Custom Settings
+
+Check the container image's default `ENTRYPOINT` and `CMD` values:
+```bash
+docker image inspect otel/opentelemetry-collector-contrib \
+| jq '.[].Config | {Entrypoint: .Entrypoint, Cmd: .Cmd}'
+```
+```
+{
+  "Entrypoint": [
+    "/otelcol-contrib"
+  ],
+  "Cmd": [
+    "--config",
+    "/etc/otelcol-contrib/config.yaml"
+  ]
+}
+```
+
+## example-stack Architecture
+
+### Logging
+
+The OpenTelemetry Collector is used to receive, process and export logs.
+Docker does not have an OpenTelemetry logging driver, so the Fluent logging driver is used.
+OpenTelemetry is configured to listen for Fluent connections.
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ `compose.yaml` defines a YAML Anchor (`&logging`),
+┃ Docker Logging Driver                    ┃ which is inherited by services by adding:
+┃                                          ┃     logging: *logging
+┃ ┌──────────────────────────────────────┐ ┃
+┃ │ driver: "fluentd"                    │ ┃ It replaces Docker's default `json-file` with `fluentd`,
+┃ │ options:                             │ ┃ and sends entries to a central receiver at:
+┃ │   fluentd-address: "localhost:24224" │ ┃     localhost:24224
+┃ └─────────────────────────────┬────────┘ ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┛
+                                │
+  [ protocol : fluent_forward ] │
+                                │
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┓ `compose.yaml` defines an otel-collector service configured via:
+┃ OpenTelemetry Collector       │          ┃     ./otelcol-contib/config.yaml
+┃                               │          ┃
+┃ ┌─────────────────────────────▼────────┐ ┃ That configuration listens for `fluent_forward` on `:24224`,
+┃ │ receiver:                            │ ┃ and `compose.yaml` exposes the port:
+┃ │   fluent_forward:                    │ ┃     otel-collector:
+┃ │     endpoint: 0.0.0.0:24224          │ ┃       ports:
+┃ └─────────────────────────────┬────────┘ ┃         - "24224:24224"
+┃                               │          ┃
+┃ ┌─────────────────────────────▼────────┐ ┃ It then sends the entries via `otlp_http` to a log store at:
+┃ │ exporter:                            │ ┃     loki:3100/otlp
+┃ │   otlp_http:                         │ ┃
+┃ │     endpoint: http://loki:3100/otlp  │ ┃
+┃ └─────────────────────────────┬────────┘ ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┛
+                                │
+       [ protocol : otlp_http ] │
+                                │
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━┓ `compose.yaml` defines a loki service confirgured via:
+┃ Loki                          │          ┃     ./loki/local-config.yaml
+┃                               │          ┃
+┃ ┌─────────────────────────────▼────────┐ ┃ That configuration listends for `otlp` on `:3100`,
+┃ │ server:                              │ ┃ and `compose.yaml` exposes the port:
+┃ │   http_listen_port: 3100             │ ┃     loki:
+┃ └──────────────────────────────────────┘ ┃       ports:
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛         - "3100:3100"
+```

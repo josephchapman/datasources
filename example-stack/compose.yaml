@@ -13,16 +13,12 @@ services:
       - 9091:9091
   prometheus:
     container_name: prometheus
-    image: prom/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.retention.time=365d'
-      - '--storage.tsdb.retention.size=8GB'
+    image: prom/prometheus:v3.12.0 # hard coded to 3.12 as 'latest' pointed to 2.5.4, which doesn't accept storage.tsdb within prometheus.yml
     ports:
       - 9090:9090
     restart: unless-stopped
     volumes:
-      - ./prometheus:/etc/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
   influxdb:
     container_name: influxdb2
@@ -61,20 +57,18 @@ services:
     image: grafana/loki:latest
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
     volumes:
-      - ./loki/local-config.yaml:/etc/loki/local-config.yaml
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
   otel-collector:
     container_name: otel-collector
     image: otel/opentelemetry-collector-contrib
     restart: unless-stopped
-    command: [ "--config=/etc/otel-config.yml" ]
     volumes:
-      - ./otel/otel-config.yml:/etc/otel-config.yml
+      - ./otelcol-contrib/config.yaml:/etc/otelcol-contrib/config.yaml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     ports:
-      - "24224:24224"   # Fluentforward receiver
+      - "24224:24224"   # Fluent_forward receiver
     depends_on:
       - loki
   prometheus-exporter-weather:

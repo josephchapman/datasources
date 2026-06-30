@@ -1,15 +1,15 @@
 receivers:
- fluentforward:
-   endpoint: 0.0.0.0:24224
+  fluent_forward:
+    endpoint: 0.0.0.0:24224
 exporters:
   debug:
     verbosity: detailed
-  otlphttp:
+  otlp_http:
     endpoint: http://loki:3100/otlp
 service:
   pipelines:
     logs:
       receivers:
-        - fluentforward
+        - fluent_forward
       exporters:
-        - otlphttp
+        - otlp_http
