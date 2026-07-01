@@ -7,10 +7,6 @@ x-default-logging: &logging
    fluentd-retry-wait: 1s
    fluentd-max-retries: 10
 services:
-  prom-pushgateway:
-    image: prom/pushgateway
-    ports: 
-      - 9091:9091
   prometheus:
     container_name: prometheus
     image: prom/prometheus:v3.12.0 # hard coded to 3.12 as 'latest' pointed to 2.5.4, which doesn't accept storage.tsdb within prometheus.yml
@@ -68,6 +64,8 @@ services:
       - ./otelcol-contrib/config.yaml:/etc/otelcol-contrib/config.yaml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     ports:
+      - "4317:4317"    # OTLP gRPC receiver
+      - "4318:4318"    # OTLP HTTP receiver
       - "24224:24224"   # Fluent_forward receiver
   prometheus-exporter-weather:
     container_name: prometheus-exporter-weather
