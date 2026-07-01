@@ -52,10 +52,6 @@ services:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - prometheus
-      - loki
-      - influxdb
   loki:
     container_name: loki
     image: grafana/loki:latest
@@ -73,10 +69,6 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     ports:
       - "24224:24224"   # Fluent_forward receiver
-    depends_on:
-      - loki
-      - prometheus
-      - prometheus-exporter-weather
   prometheus-exporter-weather:
     container_name: prometheus-exporter-weather
     build:
