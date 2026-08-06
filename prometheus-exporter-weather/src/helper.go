@@ -114,6 +114,36 @@ func definePrometheusRegistry() (*prometheus.Registry, *metrics) {
 			Name: "weather_wind_gusts_knots",
 			Help: "The wind gusts.",
 		}, []string{"location"}),
+
+		IsDay: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "weather_is_day",
+			Help: "Whether it is daytime.",
+		}, []string{"location"}),
+
+		PressureMSL: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "weather_pressure_msl_hpa",
+			Help: "Mean sea level pressure.",
+		}, []string{"location"}),
+
+		SurfacePressure: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "weather_surface_pressure_hpa",
+			Help: "Surface pressure.",
+		}, []string{"location"}),
+
+		WeatherCode: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "weather_code",
+			Help: "Weather condition code.",
+		}, []string{"location"}),
+
+		DewPoint2m: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "weather_dew_point_2m_celcius",
+			Help: "Dew point at 2m.",
+		}, []string{"location"}),
+
+		Visibility: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "weather_visibility_meters",
+			Help: "Visibility in meters.",
+		}, []string{"location"}),
 	}
 
 	r.MustRegister(metrics.TemperatureActual)
@@ -126,6 +156,12 @@ func definePrometheusRegistry() (*prometheus.Registry, *metrics) {
 	r.MustRegister(metrics.WindSpeed)
 	r.MustRegister(metrics.WindDirection)
 	r.MustRegister(metrics.WindGusts)
+	r.MustRegister(metrics.IsDay)
+	r.MustRegister(metrics.PressureMSL)
+	r.MustRegister(metrics.SurfacePressure)
+	r.MustRegister(metrics.WeatherCode)
+	r.MustRegister(metrics.DewPoint2m)
+	r.MustRegister(metrics.Visibility)
 
 	return r, metrics
 }

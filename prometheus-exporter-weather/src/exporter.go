@@ -20,7 +20,7 @@ type location struct {
 
 func (l location) endpoint() (url string, err error) {
 
-	url = fmt.Sprintf("https://api.open-meteo.com/v1/forecast?latitude=%2f&longitude=%2f&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,showers,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn&timezone=%s", l.Latitude, l.Longitude, l.TZData)
+	url = fmt.Sprintf("https://api.open-meteo.com/v1/forecast?latitude=%2f&longitude=%2f&timezone=%s&wind_speed_unit=kn&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,showers,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day,pressure_msl,surface_pressure,weather_code,dew_point_2m,visibility", l.Latitude, l.Longitude, l.TZData)
 
 	return url, nil
 }
@@ -47,6 +47,12 @@ type metrics struct {
 	WindSpeed           *prometheus.GaugeVec `json:"wind_speed"`
 	WindDirection       *prometheus.GaugeVec `json:"wind_direction"`
 	WindGusts           *prometheus.GaugeVec `json:"wind_gusts"`
+	IsDay               *prometheus.GaugeVec `json:"is_day"`
+	PressureMSL         *prometheus.GaugeVec `json:"pressure_msl"`
+	SurfacePressure     *prometheus.GaugeVec `json:"surface_pressure"`
+	WeatherCode         *prometheus.GaugeVec `json:"weather_code"`
+	DewPoint2m          *prometheus.GaugeVec `json:"dew_point_2m"`
+	Visibility          *prometheus.GaugeVec `json:"visibility"`
 }
 
 type apiDataCurrentUnits struct {
@@ -62,6 +68,12 @@ type apiDataCurrentUnits struct {
 	Wind_speed_10m       string `json:"wind_speed_10m"`
 	Wind_direction_10m   string `json:"wind_direction_10m"`
 	Wind_gusts_10m       string `json:"wind_gusts_10m"`
+	Is_day               string `json:"is_day"`
+	Pressure_msl         string `json:"pressure_msl"`
+	Surface_pressure     string `json:"surface_pressure"`
+	Weather_code         string `json:"weather_code"`
+	Dew_point_2m         string `json:"dew_point_2m"`
+	Visibility           string `json:"visibility"`
 }
 
 type apiDataCurrent struct {
@@ -77,6 +89,12 @@ type apiDataCurrent struct {
 	Wind_speed_10m       float64 `json:"wind_speed_10m"`
 	Wind_direction_10m   float64 `json:"wind_direction_10m"`
 	Wind_gusts_10m       float64 `json:"wind_gusts_10m"`
+	Is_day               float64 `json:"is_day"`
+	Pressure_msl         float64 `json:"pressure_msl"`
+	Surface_pressure     float64 `json:"surface_pressure"`
+	Weather_code         float64 `json:"weather_code"`
+	Dew_point_2m         float64 `json:"dew_point_2m"`
+	Visibility           float64 `json:"visibility"`
 }
 
 type weather struct {
@@ -193,6 +211,30 @@ func (w *weather) updateMetrics() (err error) {
 	w.Metrics.WindGusts.With(
 		prometheus.Labels{"location": w.Location.Name},
 	).Set(w.ApiData.Current.Wind_gusts_10m)
+
+	w.Metrics.IsDay.With(
+		prometheus.Labels{"location": w.Location.Name},
+	).Set(w.ApiData.Current.Is_day)
+
+	w.Metrics.PressureMSL.With(
+		prometheus.Labels{"location": w.Location.Name},
+	).Set(w.ApiData.Current.Pressure_msl)
+
+	w.Metrics.SurfacePressure.With(
+		prometheus.Labels{"location": w.Location.Name},
+	).Set(w.ApiData.Current.Surface_pressure)
+
+	w.Metrics.WeatherCode.With(
+		prometheus.Labels{"location": w.Location.Name},
+	).Set(w.ApiData.Current.Weather_code)
+
+	w.Metrics.DewPoint2m.With(
+		prometheus.Labels{"location": w.Location.Name},
+	).Set(w.ApiData.Current.Dew_point_2m)
+
+	w.Metrics.Visibility.With(
+		prometheus.Labels{"location": w.Location.Name},
+	).Set(w.ApiData.Current.Visibility)
 
 	return nil
 }
