@@ -1,2 +1,3 @@
 tmp/
 .devcontainer/src
+.devcontainer/devcontainer-lock.json
