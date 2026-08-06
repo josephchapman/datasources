@@ -1,7 +1,7 @@
 {
   "name": "Ubuntu",
-  "image": "ubuntu:jammy",
-  "remoteUser": "contend",
+  "image": "ubuntu:resolute",
+  "remoteUser": "datasources",
   "customizations": {
     "vscode": {
       "settings": {
@@ -16,10 +16,10 @@
     }
   },
   "features": {
+    "./src/000_utils/": {},
     "./src/go/": {},
-    "./src/user/": {
-      "username": "contend"
-    },
-    "./src/utils/": {}
+    "./src/zzz_user/": {
+      "username": "datasources"
+    }
   }
 }
