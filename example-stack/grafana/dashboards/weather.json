@@ -602,7 +602,7 @@
         "includeAll": true,
         "multi": true,
         "allValue": ".*",
-        "query": "label_values(weather_temperature_actual_celcius, location)",
+        "query": "label_values({__name__=~\"weather_.*\"}, location)",
         "datasource": {
           "type": "prometheus",
           "uid": "ERgg9hAnMdw4Lpf9"
