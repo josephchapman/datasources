@@ -72,7 +72,9 @@ services:
     build:
       context: ..
       dockerfile: prometheus-exporter-weather/Dockerfile
-    env_file: ../prometheus-exporter-weather/locations.env
+    env_file:
+      - path: ../prometheus-exporter-weather/locations.env
+        required: false
     ports:
       - 2112:2112
     restart: unless-stopped
@@ -82,7 +84,9 @@ services:
     build:
       context: ..
       dockerfile: logger-speedrun/Dockerfile
-    env_file: ../logger-speedrun/leaderboards.env
+    env_file:
+      - path: ../logger-speedrun/leaderboards.env
+        required: false
     restart: on-failure
     logging: *logging
     command: # arguments to entrypoint
@@ -95,7 +99,9 @@ services:
     build:
       context: ..
       dockerfile: replicator-chess/Dockerfile
-    env_file: ../replicator-chess/players.env
+    env_file:
+      - path: ../replicator-chess/players.env
+        required: false
     restart: on-failure
     logging: *logging
     command: # arguments to entrypoint

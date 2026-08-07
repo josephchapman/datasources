@@ -12,6 +12,7 @@ spec:
     envFrom:
     - configMapRef:
         name: locations-env
+        optional: true
     resources:
       limits:
         memory: "32Mi"

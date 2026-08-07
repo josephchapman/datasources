@@ -3,24 +3,73 @@
 Provides an OpenMetrics (`/metrics`) page containing weather data for multiple locations
 
 
-## Docker
+## Locations
 
-```bash
-export WEATHER_LOCATIONS='[
-    {
-        "name": "New York",
-        "latitude": 40.79,
-        "longitude": -73.96,
-        "tzdata": "America/New_York"
-    },
-    {
-        "name": "London",
-        "latitude": 51.50,
-        "longitude": -0.12,
-        "tzdata": "Europe/London"
-    }
+The Dockerfile has an in-built `WEATHER_LOCATIONS` environment variable:
+```dockerfile
+ENV WEATHER_LOCATIONS='[ \
+  { \
+    "name": "New York", \
+    "latitude": 40.79, \
+    "longitude": -73.96, \
+    "tzdata": "America/New_York" \
+  }, \
+  { \
+    "name": "London", \
+    "latitude": 51.50, \
+    "longitude": -0.12, \
+    "tzdata": "Europe/London" \
+  } \
 ]'
 ```
+
+
+### Custom Locations
+
+Create a `locations.env` file from the example file:
+```bash
+cp prometheus-exporter-weather/locations.env{.example,}
+```
+
+Update the file to include custom locations:
+```bash
+vi prometheus-exporter-weather/locations.env
+```
+
+
+#### Docker Compose
+
+The `compose.yaml` file treats the `locations.env` file as optional, but its presence will override the Dockerfile's defaults:
+```yaml
+    env_file:
+      - path: ../prometheus-exporter-weather/locations.env
+        required: false
+```
+
+If the `locations.env` file was created, no further action is required.
+Git will not track this file.
+
+
+#### Kubernetes
+
+The `pod.yaml` file treats the `locations-env` ConfigMap as optional, but its presence will override the Dockerfile's defaults:
+```yaml
+    envFrom:
+    - configMapRef:
+        name: locations-env
+        optional: true
+```
+
+Deploy the `locations.env` file created in the previous step to a ConfigMap:
+```bash
+kubectl create configmap \
+  -n datasources \
+  locations-env \
+  --from-literal="$(cat prometheus-exporter-weather/locations.env)"
+```
+
+
+## Docker
 
 ```bash
 docker build -t prometheus-exporter-weather -f prometheus-exporter-weather/Dockerfile .

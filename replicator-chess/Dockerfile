@@ -9,8 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/replicator-chess .
 
 FROM scratch
 ENV PLAYERS='[ \
-  "annacramling", \
-  "AlexandraBotez" \
+  "annacramling" \
 ]'
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /bin/replicator-chess /usr/local/bin/replicator-chess

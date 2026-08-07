@@ -17,6 +17,7 @@ spec:
             envFrom:
             - configMapRef:
                 name: leaderboards-env
+                optional: true
             resources:
               limits:
                 memory: "32Mi"

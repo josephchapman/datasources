@@ -4,14 +4,43 @@ Replicates ELO into a TSDB.
 
 In a system that doesn't support cron, run the binary with the `-nocron <minutes>` flag to keep the process running in a loop that sleeps for `<minutes>` mintues.
 
-## Docker
 
-```bash
-PLAYERS='[
-    "annacramling",
-    "AlexandraBotez"
+## Players
+
+The Dockerfile has an in-built `PLAYERS` environment variable:
+```dockerfile
+ENV PLAYERS='[ \
+  "annacramling" \
 ]'
 ```
+
+### Custom Players
+
+Create a `players.env` file from the example file:
+```bash
+cp replicator-chess/players.env{.example,}
+```
+
+Update the file to include custom players:
+```bash
+vi replicator-chess/players.env
+```
+
+
+#### Docker Compose
+
+The `compose.yaml` file treats the `players.env` file as optional, but its presence will override the Dockerfile's defaults:
+```yaml
+    env_file:
+      - path: ../replicator-chess/players.env
+        required: false
+```
+
+If the `players.env` file was created, no further action is required.
+Git will not track this file.
+
+
+## Docker
 
 ```bash
 docker build -t replicator-chess -f replicator-chess/Dockerfile .

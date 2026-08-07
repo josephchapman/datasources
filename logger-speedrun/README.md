@@ -5,6 +5,83 @@ Logs can be queried via logql and displayed in a dashboard.
 
 In a system that doesn't support cron, run the binary with the `-nocron <minutes>` flag to keep the process running in a loop that sleeps for `<minutes>` mintues.
 
+
+## Leaderboards
+
+The Dockerfile has an in-built `SPEEDRUN_LEADERBOARDS` environment variable:
+```dockerfile
+ENV SPEEDRUN_LEADERBOARDS='[ \
+  { \
+    "game": "o1y9wo6q", \
+    "category": "wkpoo02r", \
+    "values": { \
+      "e8m7em86": "9qj7z0oq" \
+    } \
+  }, \
+  { \
+    "game": "o1y9wo6q", \
+    "category": "7dgrrxk4", \
+    "values": { \
+      "e8m7em86": "9qj7z0oq" \
+    } \
+  } \
+]'
+```
+
+
+### Custom Leaderboards
+
+Create a `leaderboards.env` file from the example file:
+```bash
+cp logger-speedrun/leaderboards.env{.example,}
+```
+
+Update the file to include custom players:
+```bash
+vi logger-speedrun/leaderboards.env
+```
+
+
+#### Docker Compose
+
+The `compose.yaml` file treats the `leaderboards.env` file as optional, but its presence will override the Dockerfile's defaults:
+```yaml
+    env_file:
+      - path: ../logger-speedrun/leaderboards.env
+        required: false
+```
+
+If the `leaderboards.env` file was created, no further action is required.
+Git will not track this file.
+
+
+#### Kubernetes
+
+The `job.yml` file treats the `leaderboards-env` ConfigMap as optional, but its presence will override the Dockerfile's defaults:
+```yaml
+        envFrom:
+        - configMapRef:
+            name: leaderboards-env
+            optional: true
+```
+
+The `cronjob.yml` file treats the `leaderboards-env` ConfigMap as optional, but its presence will override the Dockerfile's defaults:
+```yaml
+            envFrom:
+            - configMapRef:
+                name: leaderboards-env
+                optional: true
+```
+
+Deploy the `leaderboards.env` file created in the previous step to a ConfigMap:
+```bash
+kubectl create configmap \
+  -n datasources \
+  leaderboards-env \
+  --from-literal="$(cat logger-speedrun/leaderboards.env)"
+```
+
+
 ## Docker
 
 ```bash
