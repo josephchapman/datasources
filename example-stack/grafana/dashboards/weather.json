@@ -164,44 +164,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"New York\"}",
+          "expr": "weather_temperature_actual_celcius{location=~\"$location\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "New York",
+          "legendFormat": "{{location}}",
           "range": true,
           "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "ERgg9hAnMdw4Lpf9"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"London\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "London",
-          "range": true,
-          "refId": "B",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "ERgg9hAnMdw4Lpf9"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"Tokyo\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "Tokyo",
-          "range": true,
-          "refId": "C",
           "useBackend": false
         }
       ],
@@ -300,45 +268,13 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"New York\"}",
+          "expr": "weather_humidity_relative_percent{location=~\"$location\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "New York",
+          "legendFormat": "{{location}}",
           "range": true,
           "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "ERgg9hAnMdw4Lpf9"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"London\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "London",
-          "range": true,
-          "refId": "B",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "ERgg9hAnMdw4Lpf9"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"Tokyo\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "Tokyo",
-          "range": true,
-          "refId": "C",
           "useBackend": false
         }
       ],
@@ -437,45 +373,13 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"New York\"}",
+          "expr": "weather_wind_speed_knots{location=~\"$location\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "New York",
+          "legendFormat": "{{location}}",
           "range": true,
           "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "ERgg9hAnMdw4Lpf9"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"London\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "London",
-          "range": true,
-          "refId": "B",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "ERgg9hAnMdw4Lpf9"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "weather_wind_speed_knots{location=\"Tokyo\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "Tokyo",
-          "range": true,
-          "refId": "C",
           "useBackend": false
         }
       ],
@@ -599,11 +503,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_temperature_actual_celcius{location=\"London\"}",
+          "expr": "weather_temperature_actual_celcius{location=~\"$location\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "Temperature",
+          "legendFormat": "Temperature - {{location}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -615,11 +519,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_dew_point_2m_celcius{location=\"London\"}",
+          "expr": "weather_dew_point_2m_celcius{location=~\"$location\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "Dew Point",
+          "legendFormat": "Dew Point - {{location}}",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -631,17 +535,17 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "weather_humidity_relative_percent{location=\"London\"}",
+          "expr": "weather_humidity_relative_percent{location=~\"$location\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "Humidity",
+          "legendFormat": "Humidity - {{location}}",
           "range": true,
           "refId": "C",
           "useBackend": false
         }
       ],
-      "title": "London Temperature, Dew Point, and Humidity",
+      "title": "Selected Location Temperature, Dew Point, and Humidity",
       "type": "timeseries"
     },
     {
@@ -689,7 +593,29 @@
   "schemaVersion": 40,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "location",
+        "type": "query",
+        "label": "Location",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*",
+        "query": "label_values(weather_temperature_actual_celcius, location)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "ERgg9hAnMdw4Lpf9"
+        },
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "refresh": 1,
+        "sort": 0,
+        "skipUrlSync": false
+      }
+    ]
   },
   "time": {
     "from": "now-24h",
