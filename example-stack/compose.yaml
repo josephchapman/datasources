@@ -111,6 +111,18 @@ services:
     - 'influxdb'
     depends_on:
       - influxdb
+  interface:
+    container_name: interface
+    build:
+      context: ..
+      dockerfile: interface/Dockerfile
+    network_mode: host
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../interface/app:/usr/src/app:ro
+    restart: unless-stopped
+    entrypoint: ["streamlit", "run", "🏠_Home.py", "--server.port=8501", "--server.address=0.0.0.0"]
 volumes:
   prometheus_data:
   loki_data:
