@@ -1,6 +1,7 @@
 FROM python:latest
 WORKDIR /usr/src/app
 RUN pip install --no-cache-dir \
+    influxdb-client \
     langchain \
     langchain-community \
     langchain_redis \
@@ -8,6 +9,7 @@ RUN pip install --no-cache-dir \
     langgraph \
     matplotlib \
     numpy \
+    scipy \
     "starlette<0.40.0" \
     streamlit
 EXPOSE 8501

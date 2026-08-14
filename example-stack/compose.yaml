@@ -116,9 +116,9 @@ services:
     build:
       context: ..
       dockerfile: interface/Dockerfile
-    network_mode: host
+    network_mode: "host"
     ports:
-      - "8501:8501"
+      - 8501:8501
     volumes:
       - ../interface/app:/usr/src/app:ro
     restart: unless-stopped

@@ -88,7 +88,7 @@ $ curl -s \
     --data-urlencode 'query={job="testjob"}' \
 | jq '.data.result'
 ```
-```
+```json
 [
   {
     "stream": {
@@ -127,6 +127,12 @@ Speedrun:
 Chess (after running the `replicator-chess` app):
 ![Screenshot](dashboard_chess.png?raw=true "Screenshot of 'Chess' dashboard")
 
+### Interface
+
+```
+http://localhost:8501
+```
+
 ## Custom Settings
 
 Check the container image's default `ENTRYPOINT` and `CMD` values:
@@ -134,7 +140,7 @@ Check the container image's default `ENTRYPOINT` and `CMD` values:
 docker image inspect otel/opentelemetry-collector-contrib \
 | jq '.[].Config | {Entrypoint: .Entrypoint, Cmd: .Cmd}'
 ```
-```
+```json
 {
   "Entrypoint": [
     "/otelcol-contrib"
