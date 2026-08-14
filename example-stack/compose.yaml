@@ -35,6 +35,16 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
     volumes:
       - influxdb_data:/var/lib/influxdb2
+  telegraf:
+    container_name: telegraf
+    image: telegraf:1.30
+    restart: unless-stopped
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    environment:
+      - INFLUX_TOKEN=my-super-secret-auth-token
+      - INFLUX_ORG=my-org
+      - INFLUX_BUCKET=my-bucket
   grafana:
     container_name: grafana
     image: grafana/grafana
