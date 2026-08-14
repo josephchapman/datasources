@@ -9,6 +9,42 @@ INFLUX_TOKEN = "my-super-secret-auth-token"
 INFLUX_BUCKET = "my-bucket"
 INFLUX_ORG = "my-org"
 
+
+def get_latest_utilities_values():
+    defaults = {
+        "electricity_import": 0.0,
+        "electricity_export": 0.0,
+        "electricity_generation": 0.0,
+        "water_import": 0.0,
+    }
+
+    try:
+        with InfluxDBClient(
+            url=INFLUX_URL,
+            token=INFLUX_TOKEN,
+            org=INFLUX_ORG
+        ) as client:
+            query_api = client.query_api()
+            for field_name in defaults:
+                query = f'''
+                from(bucket: "{INFLUX_BUCKET}")
+                  |> range(start: -30d)
+                  |> filter(fn: (r) => r._measurement == "utilities")
+                  |> filter(fn: (r) => r._field == "{field_name}")
+                  |> last()
+                '''
+                tables = query_api.query(query)
+                if tables and len(tables) > 0 and len(tables[0].records) > 0:
+                    defaults[field_name] = float(tables[0].records[0].get_value())
+    except Exception:
+        pass
+
+    return defaults
+
+
+if "latest_utilities" not in st.session_state:
+    st.session_state.latest_utilities = get_latest_utilities_values()
+
 with st.form(
     key="utilities_form",
     enter_to_submit=False,
@@ -31,7 +67,7 @@ with st.form(
         )
     with empty:
         message_slot = st.empty()
-    
+
     main = st.columns(
         [1],
         border=False
@@ -64,7 +100,7 @@ with st.form(
                 st.number_input(
                     label="Consumption (kWh)",
                     format="%6.2f",
-                    min_value=008052.38,
+                    min_value=st.session_state.latest_utilities["electricity_import"],
                     key="electricity_import",
                     icon="⚡"
                 )
@@ -73,7 +109,7 @@ with st.form(
                 st.number_input(
                     label="Export (kWh)",
                     format="%6.2f",
-                    min_value=028087.35,
+                    min_value=st.session_state.latest_utilities["electricity_export"],
                     key="electricity_export",
                     icon="⚡"
                 )
@@ -91,7 +127,7 @@ with st.form(
             st.number_input(
                 label="Consumption (kWh)",
                 format="%6.2f",
-                min_value=029717.14,
+                min_value=st.session_state.latest_utilities["electricity_generation"],
                 key="electricity_generation",
                 icon="☀️"
             )
@@ -118,7 +154,7 @@ with st.form(
             st.number_input(
                 label="Consumption (m³)",
                 format="%5.3f",
-                min_value=00281.661,
+                min_value=st.session_state.latest_utilities["water_import"],
                 key="water_import",
                 icon="💧"
             )
