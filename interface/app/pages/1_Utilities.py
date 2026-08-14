@@ -1,8 +1,10 @@
+import os
+
 import streamlit as st
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-INFLUX_URL = "http://127.0.0.1:8086"
+INFLUX_URL = os.getenv("INFLUX_URL", "http://influxdb:8086")
 INFLUX_TOKEN = "my-super-secret-auth-token"
 INFLUX_BUCKET = "my-bucket"
 INFLUX_ORG = "my-org"
