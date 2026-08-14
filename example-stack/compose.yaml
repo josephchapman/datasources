@@ -116,7 +116,10 @@ services:
     build:
       context: ..
       dockerfile: interface/Dockerfile
-    network_mode: "host"
+    environment:
+      - INFLUX_URL=http://influxdb:8086
+    # depends_on:
+    #   - influxdb
     ports:
       - 8501:8501
     volumes:
