@@ -56,6 +56,38 @@ from(bucket: "my-bucket")
   |> yield(name: "result")
 ```
 
+#### Writing Metrics
+
+```bash
+curl "http://localhost:8086/api/v2/write" \
+  --url-query "org=my-org" \
+  --url-query "bucket=my-bucket" \
+  --url-query "precision=s" \
+  -X POST \
+  -H "Authorization: Token my-super-secret-auth-token" \
+  --data-binary "
+    utilities electricity_import=1234,electricity_export=2345,electricity_generation=3456,electricity_consumption=4567,water_import=5678 $(date -d '2026-08-02 12:00 CEST' +%s)
+    utilities electricity_import=1334,electricity_export=2445,electricity_generation=3556,electricity_consumption=4667,water_import=5778 $(date -d '2026-08-09 12:00 CEST' +%s)
+    utilities electricity_import=1434,electricity_export=2545,electricity_generation=3656,electricity_consumption=4767,water_import=5878 $(date -d '2026-08-16 12:00 CEST' +%s)
+  "
+```
+
+#### Clearing Metrics
+
+```bash
+curl "http://localhost:8086/api/v2/delete" \
+  --url-query "org=my-org" \
+  --url-query "bucket=my-bucket" \
+  -X POST \
+  -H "Authorization: Token my-super-secret-auth-token" \
+  -d '{
+    "start": "1970-01-01T00:00:00Z",
+    "stop": "2070-01-01T00:00:00Z",
+    "predicate": "_measurement=\"utilities\""
+  }'
+```
+
+
 ### Loki
 
 Test data:
