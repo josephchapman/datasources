@@ -118,7 +118,7 @@ with st.form(
             st.subheader(
                 body="Solar",
                 anchor=False,
-                divider="orange"
+                divider="yellow"
             )
             st.caption(
                 "Side-on meter, to the right"
