@@ -49,7 +49,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\")\n  |> duplicate(column: \"_value\", as: \"daily_electricity_generation\")\n  |> derivative(unit: 1d, columns: [\"daily_electricity_generation\"], timeColumn: \"_time\")\n  |> keep(columns: [\"_time\", \"daily_electricity_generation\"])"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_electricity_generation\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -171,6 +171,765 @@
           }
         }
       },
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "id": 10,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_ratio\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.75,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^electricity_ratio$/",
+                  "values": false
+                },
+                "segmentCount": 40,
+                "segmentSpacing": 0.1,
+                "shape": "gauge",
+                "showThresholdLabels": true,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "min": 0,
+                  "max": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 1,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 1.3,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-11": {
+        "kind": "Panel",
+        "spec": {
+          "id": 11,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"monthly_profit\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": false
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "currencyEUR",
+                  "min": -10,
+                  "max": 10,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": true,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "stepBefore",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "dashed+area"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-12": {
+        "kind": "Panel",
+        "spec": {
+          "id": 12,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"monthly_profit\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.75,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^monthly_profit$/",
+                  "values": false
+                },
+                "segmentCount": 30,
+                "segmentSpacing": 0.1,
+                "shape": "gauge",
+                "showThresholdLabels": true,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "currencyEUR",
+                  "min": -10,
+                  "max": 10,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-13": {
+        "kind": "Panel",
+        "spec": {
+          "id": 13,
+          "title": "Electricity Import",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^electricity_import$/",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-14": {
+        "kind": "Panel",
+        "spec": {
+          "id": 14,
+          "title": "Electricity Export",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^electricity_export$/",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-15": {
+        "kind": "Panel",
+        "spec": {
+          "id": 15,
+          "title": "Electricity Generation",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^electricity_generation$/",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "yellow"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-16": {
+        "kind": "Panel",
+        "spec": {
+          "id": 16,
+          "title": "Water Import",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^water_import$/",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 3,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "blue"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-17": {
+        "kind": "Panel",
+        "spec": {
+          "id": 17,
+          "title": "Electricity Consumption",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^electricity_consumption$/",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "orange"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "#ad46ff"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-18": {
+        "kind": "Panel",
+        "spec": {
+          "id": 18,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "# Cupboard to the left of front door",
+                "mode": "markdown"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-19": {
+        "kind": "Panel",
+        "spec": {
+          "id": 19,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "# Cupboard to the right of front door",
+                "mode": "markdown"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
       "panel-2": {
         "kind": "Panel",
         "spec": {
@@ -190,7 +949,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\")\n  |> duplicate(column: \"_value\", as: \"daily_electricity_generation\")\n  |> derivative(unit: 1d, columns: [\"daily_electricity_generation\"], timeColumn: \"_time\")\n  |> keep(columns: [\"_time\", \"daily_electricity_generation\"])"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_electricity_generation\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -271,6 +1030,327 @@
           }
         }
       },
+      "panel-20": {
+        "kind": "Panel",
+        "spec": {
+          "id": 20,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "# Top-mounted Meter\n\nOn top of the pipe",
+                "mode": "markdown"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-21": {
+        "kind": "Panel",
+        "spec": {
+          "id": 21,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "# Front-facing Meter\n\nTo the left",
+                "mode": "markdown"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-22": {
+        "kind": "Panel",
+        "spec": {
+          "id": 22,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "# Side-on Meter\n\nTo the right",
+                "mode": "markdown"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-23": {
+        "kind": "Panel",
+        "spec": {
+          "id": 23,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "text",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "# Calculated Value\n\nConsumption = Import + Generation - Export",
+                "mode": "markdown"
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-24": {
+        "kind": "Panel",
+        "spec": {
+          "id": 24,
+          "title": "All Readings",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "decimals": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false,
+                    "wrapText": true
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "_time"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 97
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "source"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 55
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "electricity_consumption"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 169
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "electricity_export"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 126
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "electricity_generation"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 155
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "electricity_import"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 126
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "water_import"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 97
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
       "panel-3": {
         "kind": "Panel",
         "spec": {
@@ -290,7 +1370,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_consumption\")\n  |> duplicate(column: \"_value\", as: \"daily_electricity_consumption\")\n  |> derivative(unit: 1d, columns: [\"daily_electricity_consumption\"], timeColumn: \"_time\")\n  |> keep(columns: [\"_time\", \"daily_electricity_consumption\"])"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_electricity_consumption\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -431,7 +1511,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_consumption\")\n  |> duplicate(column: \"_value\", as: \"daily_electricity_consumption\")\n  |> derivative(unit: 1d, columns: [\"daily_electricity_consumption\"], timeColumn: \"_time\")\n  |> keep(columns: [\"_time\", \"daily_electricity_consumption\"])"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_electricity_consumption\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -531,7 +1611,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"water_import\")\n  |> duplicate(column: \"_value\", as: \"daily_water_import\")\n  |> derivative(unit: 1d, columns: [\"daily_water_import\"], timeColumn: \"_time\")\n  // Convert m^3/d to L/d by multiplying the calculated derivative by 1000\n  |> map(fn: (r) => ({ r with daily_water_import: r.daily_water_import * 1000.0 }))\n  |> keep(columns: [\"_time\", \"daily_water_import\"])"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_water_import\"\n       }\n     )\n  |> map(\n       fn: (r) => (\n         { r with \"daily_water_import\": r[\"daily_water_import\"] * 1000.0 }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -672,7 +1752,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"water_import\")\n  |> duplicate(column: \"_value\", as: \"daily_water_import\")\n  |> derivative(unit: 1d, columns: [\"daily_water_import\"], timeColumn: \"_time\")\n  // Convert m^3/d to L/d by multiplying the calculated derivative by 1000\n  |> map(fn: (r) => ({ r with daily_water_import: r.daily_water_import * 1000.0 }))\n  |> keep(columns: [\"_time\", \"daily_water_import\"])"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_water_import\"\n       }\n     )\n  |> map(\n       fn: (r) => (\n         { r with \"daily_water_import\": r[\"daily_water_import\"] * 1000.0 }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -773,7 +1853,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\")\n  |> derivative(unit: 1h, columns: [\"_value\"], timeColumn: \"_time\")\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      electricity_net: r.electricity_generation - r.electricity_consumption\n  }))"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_net\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -888,7 +1968,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\")\n  |> derivative(unit: 1h, columns: [\"_value\"], timeColumn: \"_time\")\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      electricity_net: r.electricity_generation - r.electricity_consumption\n  }))"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_net\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -981,7 +2061,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\")\n  |> derivative(unit: 1h, columns: [\"_value\"], timeColumn: \"_time\")\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      electricity_ratio: r.electricity_generation / r.electricity_consumption\n  }))"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_ratio\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -1075,691 +2155,6 @@
                     "thresholdsStyle": {
                       "mode": "dashed+area"
                     }
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-10": {
-        "kind": "Panel",
-        "spec": {
-          "id": 10,
-          "title": "",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\")\n  |> derivative(unit: 1h, columns: [\"_value\"], timeColumn: \"_time\")\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      electricity_ratio: r.electricity_generation / r.electricity_consumption\n  }))"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "gauge",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "barShape": "flat",
-                "barWidthFactor": 0.75,
-                "effects": {
-                  "barGlow": false,
-                  "centerGlow": false,
-                  "gradient": false
-                },
-                "endpointMarker": "point",
-                "minVizHeight": 75,
-                "minVizWidth": 75,
-                "orientation": "auto",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "/^electricity_ratio$/",
-                  "values": false
-                },
-                "segmentCount": 40,
-                "segmentSpacing": 0.1,
-                "shape": "gauge",
-                "showThresholdLabels": true,
-                "showThresholdMarkers": true,
-                "sizing": "auto",
-                "sparkline": false,
-                "textMode": "auto"
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "none",
-                  "min": 0,
-                  "max": 2,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "red"
-                      },
-                      {
-                        "value": 1,
-                        "color": "#EAB839"
-                      },
-                      {
-                        "value": 1.3,
-                        "color": "green"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds"
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-11": {
-        "kind": "Panel",
-        "spec": {
-          "id": 11,
-          "title": "",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\")\n  |> derivative(unit: 30d, columns: [\"_value\"], timeColumn: \"_time\")\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      monthly_profit: (r.electricity_generation * 0.1050) - (r.electricity_consumption * 0.1365)\n  }))"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "annotations": {
-                  "clustering": -1,
-                  "multiLane": false
-                },
-                "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "bottom",
-                  "showLegend": false
-                },
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "single",
-                  "sort": "none"
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "currencyEUR",
-                  "min": -10,
-                  "max": 10,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "red"
-                      },
-                      {
-                        "value": 0,
-                        "color": "green"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisBorderShow": false,
-                    "axisCenteredZero": true,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "barWidthFactor": 0.6,
-                    "drawStyle": "line",
-                    "fillOpacity": 0,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "insertNulls": false,
-                    "lineInterpolation": "stepBefore",
-                    "lineWidth": 1,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "showValues": false,
-                    "spanNulls": false,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "dashed+area"
-                    }
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-12": {
-        "kind": "Panel",
-        "spec": {
-          "id": 12,
-          "title": "",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\")\n  |> derivative(unit: 30d, columns: [\"_value\"], timeColumn: \"_time\")\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n      _time: r._time,\n      monthly_profit: (r.electricity_generation * 0.1050) - (r.electricity_consumption * 0.1365)\n  }))"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "gauge",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "barShape": "flat",
-                "barWidthFactor": 0.75,
-                "effects": {
-                  "barGlow": false,
-                  "centerGlow": false,
-                  "gradient": false
-                },
-                "endpointMarker": "point",
-                "minVizHeight": 75,
-                "minVizWidth": 75,
-                "orientation": "auto",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "/^monthly_profit$/",
-                  "values": false
-                },
-                "segmentCount": 30,
-                "segmentSpacing": 0.1,
-                "shape": "gauge",
-                "showThresholdLabels": true,
-                "showThresholdMarkers": true,
-                "sizing": "auto",
-                "sparkline": false,
-                "textMode": "auto"
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "currencyEUR",
-                  "min": -10,
-                  "max": 10,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "red"
-                      },
-                      {
-                        "value": 0,
-                        "color": "green"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds"
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-13": {
-        "kind": "Panel",
-        "spec": {
-          "id": 13,
-          "title": "Electricity Import",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_import\")"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "stat",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "decimals": 2,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds",
-                    "fixedColor": "#ad46ff"
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-14": {
-        "kind": "Panel",
-        "spec": {
-          "id": 14,
-          "title": "Electricity Export",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_export\")"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "stat",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "decimals": 2,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds",
-                    "fixedColor": "#ad46ff"
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-15": {
-        "kind": "Panel",
-        "spec": {
-          "id": 15,
-          "title": "Electricity Generation",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_generation\")"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "stat",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "decimals": 2,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "yellow"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds",
-                    "fixedColor": "#ad46ff"
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-16": {
-        "kind": "Panel",
-        "spec": {
-          "id": 16,
-          "title": "Water Import",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"water_import\")"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "stat",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "decimals": 3,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "blue"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds",
-                    "fixedColor": "#ad46ff"
-                  }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "panel-17": {
-        "kind": "Panel",
-        "spec": {
-          "id": 17,
-          "title": "Electricity Consumption (calculated: Import + Generation - Export)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
-                      "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"utilities\")\n  |> filter(fn: (r) => r[\"_field\"] == \"electricity_consumption\")"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "stat",
-            "version": "13.1.0",
-            "spec": {
-              "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "decimals": 2,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "orange"
-                      }
-                    ]
-                  },
-                  "color": {
-                    "mode": "thresholds",
-                    "fixedColor": "#ad46ff"
                   }
                 },
                 "overrides": []
@@ -2052,7 +2447,85 @@
                       "spec": {
                         "x": 0,
                         "y": 0,
-                        "width": 8,
+                        "width": 6,
+                        "height": 5,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-18"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 6,
+                        "y": 0,
+                        "width": 18,
+                        "height": 5,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-19"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 5,
+                        "width": 6,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-20"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 6,
+                        "y": 5,
+                        "width": 12,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-21"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 18,
+                        "y": 5,
+                        "width": 6,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-22"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 8,
+                        "width": 6,
+                        "height": 5,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-16"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 6,
+                        "y": 8,
+                        "width": 6,
                         "height": 5,
                         "element": {
                           "kind": "ElementReference",
@@ -2063,9 +2536,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 8,
-                        "y": 0,
-                        "width": 8,
+                        "x": 12,
+                        "y": 8,
+                        "width": 6,
                         "height": 5,
                         "element": {
                           "kind": "ElementReference",
@@ -2076,9 +2549,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 16,
-                        "y": 0,
-                        "width": 8,
+                        "x": 18,
+                        "y": 8,
+                        "width": 6,
                         "height": 5,
                         "element": {
                           "kind": "ElementReference",
@@ -2090,12 +2563,12 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 5,
+                        "y": 13,
                         "width": 24,
-                        "height": 5,
+                        "height": 3,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "panel-16"
+                          "name": "panel-23"
                         }
                       }
                     },
@@ -2103,12 +2576,25 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 10,
+                        "y": 16,
                         "width": 24,
                         "height": 5,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-17"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 21,
+                        "width": 24,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-24"
                         }
                       }
                     }

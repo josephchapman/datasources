@@ -66,9 +66,9 @@ curl "http://localhost:8086/api/v2/write" \
   -X POST \
   -H "Authorization: Token my-super-secret-auth-token" \
   --data-binary "
-    utilities electricity_import=1234,electricity_export=2345,electricity_generation=3456,electricity_consumption=4567,water_import=5678 $(date -d '2026-08-02 12:00 CEST' +%s)
-    utilities electricity_import=1334,electricity_export=2445,electricity_generation=3556,electricity_consumption=4667,water_import=5778 $(date -d '2026-08-09 12:00 CEST' +%s)
-    utilities electricity_import=1434,electricity_export=2545,electricity_generation=3656,electricity_consumption=4767,water_import=5878 $(date -d '2026-08-16 12:00 CEST' +%s)
+    utilities,source=bill  electricity_import=1234,electricity_export=2345,electricity_generation=3456,electricity_consumption=4567,water_import=5678 $(date -d '2026-08-02 12:00 CEST' +%s)
+    utilities,source=meter electricity_import=1334,electricity_export=2445,electricity_generation=3556,electricity_consumption=4667,water_import=5778 $(date -d '2026-08-09 12:00 CEST' +%s)
+    utilities,source=meter electricity_import=1434,electricity_export=2545,electricity_generation=3656,electricity_consumption=4767,water_import=5878 $(date -d '2026-08-16 12:00 CEST' +%s)
   "
 ```
 
