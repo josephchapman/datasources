@@ -45,6 +45,11 @@ services:
       - INFLUX_TOKEN=my-super-secret-auth-token
       - INFLUX_ORG=my-org
       - INFLUX_BUCKET=my-bucket
+    env_file:
+      - path: ./telegraf/urls.env.example
+        required: false
+      - path: ./telegraf/urls.env
+        required: false
   grafana:
     container_name: grafana
     image: grafana/grafana

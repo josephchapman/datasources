@@ -1,6 +1,4 @@
 tmp/
 .devcontainer/src
 .devcontainer/devcontainer-lock.json
-logger-speedrun/leaderboards.env
-prometheus-exporter-weather/locations.env
-replicator-chess/players.env
+*.env
