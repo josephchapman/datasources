@@ -451,6 +451,7 @@
               "fieldConfig": {
                 "defaults": {
                   "unit": "currencyEUR",
+                  "decimals": 2,
                   "min": -10,
                   "max": 10,
                   "thresholds": {
@@ -1198,10 +1199,6 @@
                       "version": "v0",
                       "spec": {
                         "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\",\n         \"source\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
                       }
                     },
                     "refId": "A",
@@ -1419,15 +1416,15 @@
                         "color": "green"
                       },
                       {
-                        "value": 4,
+                        "value": 5,
                         "color": "yellow"
                       },
                       {
-                        "value": 6,
+                        "value": 7,
                         "color": "orange"
                       },
                       {
-                        "value": 8,
+                        "value": 9,
                         "color": "red"
                       }
                     ]
@@ -1569,15 +1566,15 @@
                         "color": "green"
                       },
                       {
-                        "value": 4,
+                        "value": 5,
                         "color": "yellow"
                       },
                       {
-                        "value": 6,
+                        "value": 7,
                         "color": "orange"
                       },
                       {
-                        "value": 8,
+                        "value": 9,
                         "color": "red"
                       }
                     ]
@@ -1651,7 +1648,7 @@
                 "defaults": {
                   "unit": "litre",
                   "min": 0,
-                  "max": 250,
+                  "max": 240,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1660,15 +1657,15 @@
                         "color": "green"
                       },
                       {
-                        "value": 100,
+                        "value": 80,
                         "color": "yellow"
                       },
                       {
-                        "value": 150,
+                        "value": 120,
                         "color": "orange"
                       },
                       {
-                        "value": 200,
+                        "value": 160,
                         "color": "red"
                       }
                     ]
@@ -1788,7 +1785,7 @@
                   "fields": "/^daily_water_import$/",
                   "values": false
                 },
-                "segmentCount": 50,
+                "segmentCount": 48,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1802,7 +1799,7 @@
                   "unit": "litre",
                   "decimals": 0,
                   "min": 0,
-                  "max": 250,
+                  "max": 240,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1811,15 +1808,15 @@
                         "color": "green"
                       },
                       {
-                        "value": 100,
+                        "value": 80,
                         "color": "yellow"
                       },
                       {
-                        "value": 150,
+                        "value": 120,
                         "color": "orange"
                       },
                       {
-                        "value": 200,
+                        "value": 160,
                         "color": "red"
                       }
                     ]
