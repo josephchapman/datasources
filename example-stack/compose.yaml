@@ -15,7 +15,7 @@ services:
       - --storage.tsdb.path=/prometheus              # Retain CMD
       - --web.enable-remote-write-receiver           # Custom
     ports:
-      - 9090:9090
+      - "9090:9090"
     restart: unless-stopped
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -24,7 +24,7 @@ services:
     container_name: influxdb2
     image: influxdb:2
     ports:
-      - 8086:8086
+      - "8086:8086"
     restart: unless-stopped
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
@@ -95,56 +95,85 @@ services:
       - path: ../prometheus-exporter-weather/locations.env
         required: false
     ports:
-      - 2112:2112
+      - "2112:2112"
     restart: unless-stopped
     logging: *logging
-  logger-speedrun:
-    container_name: logger-speedrun
-    build:
-      context: ..
-      dockerfile: logger-speedrun/Dockerfile
-    env_file:
-      - path: ../logger-speedrun/leaderboards.env
-        required: false
-    restart: on-failure
-    logging: *logging
-    command: # arguments to entrypoint
-    - -nocron # emulating cron
-    - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
-    depends_on:
-      - loki
-  replicator-chess:
-    container_name: replicator-chess
-    build:
-      context: ..
-      dockerfile: replicator-chess/Dockerfile
-    env_file:
-      - path: ../replicator-chess/players.env
-        required: false
-    restart: on-failure
-    logging: *logging
-    command: # arguments to entrypoint
-    - -nocron # emulating cron
-    - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
-    - -dbhost
-    - 'influxdb'
-    depends_on:
-      - influxdb
-  interface:
-    container_name: interface
+  # logger-speedrun:
+  #   container_name: logger-speedrun
+  #   build:
+  #     context: ..
+  #     dockerfile: logger-speedrun/Dockerfile
+  #   env_file:
+  #     - path: ../logger-speedrun/leaderboards.env
+  #       required: false
+  #   restart: on-failure
+  #   logging: *logging
+  #   command: # arguments to entrypoint
+  #   - -nocron # emulating cron
+  #   - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
+  #   depends_on:
+  #     - loki
+  # replicator-chess:
+  #   container_name: replicator-chess
+  #   build:
+  #     context: ..
+  #     dockerfile: replicator-chess/Dockerfile
+  #   env_file:
+  #     - path: ../replicator-chess/players.env
+  #       required: false
+  #   restart: on-failure
+  #   logging: *logging
+  #   command: # arguments to entrypoint
+  #   - -nocron # emulating cron
+  #   - '1440' # runs in a loop, sleeping for 1 day (60*24 mins)
+  #   - -dbhost
+  #   - 'influxdb'
+  #   depends_on:
+  #     - influxdb
+  streamlit:
+    container_name: streamlit
+    image: interface:latest
     build:
       context: ..
       dockerfile: interface/Dockerfile
     environment:
       - INFLUX_URL=http://influxdb:8086
-    # depends_on:
-    #   - influxdb
     ports:
-      - 8501:8501
+      - "8501:8501"
     volumes:
-      - ../interface/app:/usr/src/app:ro
+      - ../interface/streamlit:/usr/src/app/streamlit:ro
     restart: unless-stopped
-    entrypoint: ["streamlit", "run", "🏠_Home.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    entrypoint: /usr/local/bin/streamlit
+    command:
+      - run
+      - streamlit/🏠_Home.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+  juptyerlab:
+    container_name: juptyerlab
+    image: interface:latest
+    build:
+      context: ..
+      dockerfile: interface/Dockerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../interface/jupyter:/usr/src/app/jupyter:ro
+    restart: unless-stopped
+    entrypoint: /usr/local/bin/jupyter
+    command:
+      - lab
+      - --ip=0.0.0.0
+      - --port=8888
+      - --no-browser
+      - --allow-root
+      - --NotebookApp.token=''
+      - --NotebookApp.password=''
+      - --NotebookApp.disable_check_xsrf=True
+      - --NotebookApp.allow_remote_access=True
+      - --ServerApp.root_dir='/usr/src/app/jupyter'
+    depends_on:
+      - streamlit
 volumes:
   prometheus_data:
   loki_data:
