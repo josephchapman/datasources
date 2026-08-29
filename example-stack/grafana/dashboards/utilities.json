@@ -1648,7 +1648,7 @@
                 "defaults": {
                   "unit": "litre",
                   "min": 0,
-                  "max": 240,
+                  "max": 270,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1657,15 +1657,11 @@
                         "color": "green"
                       },
                       {
-                        "value": 80,
-                        "color": "yellow"
-                      },
-                      {
-                        "value": 120,
+                        "value": 90,
                         "color": "orange"
                       },
                       {
-                        "value": 160,
+                        "value": 180,
                         "color": "red"
                       }
                     ]
@@ -1785,7 +1781,7 @@
                   "fields": "/^daily_water_import$/",
                   "values": false
                 },
-                "segmentCount": 48,
+                "segmentCount": 45,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1799,7 +1795,7 @@
                   "unit": "litre",
                   "decimals": 0,
                   "min": 0,
-                  "max": 240,
+                  "max": 270,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1808,15 +1804,11 @@
                         "color": "green"
                       },
                       {
-                        "value": 80,
-                        "color": "yellow"
-                      },
-                      {
-                        "value": 120,
+                        "value": 90,
                         "color": "orange"
                       },
                       {
-                        "value": 160,
+                        "value": 180,
                         "color": "red"
                       }
                     ]

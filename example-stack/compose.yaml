@@ -39,8 +39,11 @@ services:
     container_name: telegraf
     image: telegraf:1.30
     restart: unless-stopped
+    ports:
+      - "9273:9273"
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./telegraf/telegraf.d/:/etc/telegraf/telegraf.d/:ro
     environment:
       - INFLUX_TOKEN=my-super-secret-auth-token
       - INFLUX_ORG=my-org
@@ -86,18 +89,18 @@ services:
       - "4317:4317"    # OTLP gRPC receiver
       - "4318:4318"    # OTLP HTTP receiver
       - "24224:24224"   # Fluent_forward receiver
-  prometheus-exporter-weather:
-    container_name: prometheus-exporter-weather
-    build:
-      context: ..
-      dockerfile: prometheus-exporter-weather/Dockerfile
-    env_file:
-      - path: ../prometheus-exporter-weather/locations.env
-        required: false
-    ports:
-      - "2112:2112"
-    restart: unless-stopped
-    logging: *logging
+  # prometheus-exporter-weather:
+  #   container_name: prometheus-exporter-weather
+  #   build:
+  #     context: ..
+  #     dockerfile: prometheus-exporter-weather/Dockerfile
+  #   env_file:
+  #     - path: ../prometheus-exporter-weather/locations.env
+  #       required: false
+  #   ports:
+  #     - "2112:2112"
+  #   restart: unless-stopped
+  #   logging: *logging
   # logger-speedrun:
   #   container_name: logger-speedrun
   #   build:
