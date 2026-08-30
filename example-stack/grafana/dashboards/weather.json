@@ -3,8 +3,8 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "eefqjem6pleyoa",
-    "generation": 8,
-    "creationTimestamp": "2026-08-29T17:04:38Z",
+    "generation": 1,
+    "creationTimestamp": "1970-01-01T00:00:00Z",
     "labels": {},
     "annotations": {}
   },
@@ -25,6 +25,72 @@
           "name": "Annotations & Alerts",
           "builtIn": true
         }
+      },
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "influxdb",
+            "version": "v0",
+            "spec": {
+              "limit": 100,
+              "matchAny": false,
+              "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"internal_gather\" and\n       r[\"alias\"] == \"loc1_weather\" and\n       r[\"_field\"] == \"metrics_gathered\"\n     )\n  |> group()\n  |> difference()\n  |> filter(\n       fn: (r) =>\n       r[\"_value\"] > 0\n     )\n  |> tail (n: 1)",
+              "tags": [],
+              "type": "dashboard"
+            }
+          },
+          "enable": true,
+          "hide": false,
+          "iconColor": "purple",
+          "name": "Forecast",
+          "mappings": {
+            "text": {
+              "source": "field",
+              "value": "Forecast"
+            },
+            "time": {
+              "source": "field",
+              "value": "_time"
+            }
+          }
+        }
+      },
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "influxdb",
+            "version": "v0",
+            "spec": {
+              "limit": 100,
+              "matchAny": false,
+              "query": "import \"array\"\n\narray.from(rows: [\n  {\n    text: \"Current Time\",\n    _time: now()\n  }\n])",
+              "tags": [],
+              "type": "dashboard"
+            },
+            "labels": {
+              "grafana.app/export-label": "influxdb-1",
+              "grafana.app/export-datasource-name": "InfluxDB"
+            }
+          },
+          "enable": true,
+          "hide": false,
+          "iconColor": "text",
+          "name": "Current Time",
+          "mappings": {
+            "text": {
+              "source": "field",
+              "value": "text"
+            },
+            "time": {
+              "source": "field",
+              "value": "_time"
+            }
+          }
+        }
       }
     ],
     "cursorSync": "Off",
@@ -34,7 +100,7 @@
         "kind": "Panel",
         "spec": {
           "id": 1,
-          "title": "Temperature (Apparent)",
+          "title": "🌡️ Temperature (Apparent)",
           "description": "",
           "links": [],
           "data": {
@@ -49,7 +115,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"apparent_temperature\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"apparent_temperature\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -171,7 +237,7 @@
         "kind": "Panel",
         "spec": {
           "id": 6,
-          "title": "Precipitation",
+          "title": "☔ Precipitation",
           "description": "",
           "links": [],
           "data": {
@@ -186,7 +252,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"precipitation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"precipitation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -296,7 +362,7 @@
         "kind": "Panel",
         "spec": {
           "id": 7,
-          "title": "Cloud Cover",
+          "title": "☁️ Cloud Cover",
           "description": "",
           "links": [],
           "data": {
@@ -311,7 +377,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"cloud_cover\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"cloud_cover\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -413,7 +479,7 @@
         "kind": "Panel",
         "spec": {
           "id": 8,
-          "title": "Location 1 Humidity",
+          "title": "🥵 Humidity (Primary Location)",
           "description": "",
           "links": [],
           "data": {
@@ -516,7 +582,29 @@
                     }
                   }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "Humidity"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "humidity"
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "max",
+                        "value": 100
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -588,9 +676,9 @@
     "tags": [],
     "timeSettings": {
       "timezone": "browser",
-      "from": "now-24h",
-      "to": "now",
-      "autoRefresh": "15m",
+      "from": "now-3d",
+      "to": "now+3d",
+      "autoRefresh": "5m",
       "autoRefreshIntervals": [
         "5s",
         "10s",
