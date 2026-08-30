@@ -377,7 +377,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"cloud_cover\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"cloud_cover\"\n     )\n  |> aggregateWindow(\n       every: 6h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
