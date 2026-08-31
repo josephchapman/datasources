@@ -70,10 +70,6 @@
               "query": "import \"array\"\n\narray.from(rows: [\n  {\n    text: \"Current Time\",\n    _time: now()\n  }\n])",
               "tags": [],
               "type": "dashboard"
-            },
-            "labels": {
-              "grafana.app/export-label": "influxdb-1",
-              "grafana.app/export-datasource-name": "InfluxDB"
             }
           },
           "enable": true,
@@ -225,6 +221,242 @@
                     "thresholdsStyle": {
                       "mode": "dashed+area"
                     }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "id": 10,
+          "title": "🍃 Wind Speed",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"wind_speed_10m\"\n     )\n  |> aggregateWindow(\n       every: 6h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "velocityknot",
+                  "min": 0,
+                  "max": 25,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 1,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 3,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 6,
+                        "color": "green"
+                      },
+                      {
+                        "value": 10,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 16,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 21,
+                        "color": "red"
+                      },
+                      {
+                        "value": 27,
+                        "color": "purple"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "smooth",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "dashed+area"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-11": {
+        "kind": "Panel",
+        "spec": {
+          "id": 11,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "import \"dict\"\n\nweatherMap = [\n    \"0\": \"☀️\",\n    \"1\": \"🌤️\",\n    \"2\": \"🌥️\",\n    \"3\": \"☁️\",\n    \"45\": \"🌫️\", \"48\": \"🌫️\",\n    \"51\": \"🌦️\", \"53\": \"🌦️\", \"55\": \"🌦️\",\n    \"56\": \"🥶\", \"57\": \"🥶\",\n    \"61\": \"🌧️\", \"63\": \"🌧️\", \"65\": \"🌧️\",\n    \"66\": \"🧊\", \"67\": \"🧊\",\n    \"71\": \"❄️\", \"73\": \"❄️\", \"75\": \"❄️\",\n    \"77\": \"🌨️\",\n    \"80\": \"🌦️\", \"81\": \"🌦️\", \"82\": \"🌦️\",\n    \"85\": \"🌨️\", \"86\": \"🌨️\",\n    \"95\": \"⛈️\",\n    \"96\": \"🌩️\", \"99\": \"🌩️\"\n]\n\nfrom(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"weather_code\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mode,\n       createEmpty: false\n     )\n  |> fill(\n       usePrevious: true\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: dict.get(\n           dict: weatherMap,\n           key: string(v: int(v: r._value)),\n           default: \"❓\"\n         )\n       })\n     )\n  |> pivot(\n       rowKey: [\"_time\"],\n       columnKey: [\"location_name\"],\n       valueColumn: \"_value\"\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "status-history",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "colWidth": 1,
+                "legend": {
+                  "displayMode": "list",
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": false
+                },
+                "rowHeight": 1,
+                "showValue": "auto",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "axisPlacement": "auto",
+                    "fillOpacity": 0,
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 0
                   }
                 },
                 "overrides": []
@@ -423,10 +655,10 @@
                     "steps": [
                       {
                         "value": 0,
-                        "color": "green"
+                        "color": "transparent"
                       },
                       {
-                        "value": 80,
+                        "value": 50,
                         "color": "red"
                       }
                     ]
@@ -465,7 +697,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "off"
+                      "mode": "area"
                     }
                   }
                 },
@@ -609,6 +841,123 @@
             }
           }
         }
+      },
+      "panel-9": {
+        "kind": "Panel",
+        "spec": {
+          "id": 9,
+          "title": "⚖️ Pressure (MSL)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"pressure_msl\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "mbar",
+                  "min": 980,
+                  "max": 1040,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 1013.25,
+                        "color": "blue"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "smooth",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "dashed"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
       }
     },
     "layout": {
@@ -620,8 +969,21 @@
             "spec": {
               "x": 0,
               "y": 0,
+              "width": 24,
+              "height": 3,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-11"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 3,
               "width": 12,
-              "height": 15,
+              "height": 7,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-1"
@@ -632,12 +994,12 @@
             "kind": "GridLayoutItem",
             "spec": {
               "x": 12,
-              "y": 0,
+              "y": 3,
               "width": 12,
-              "height": 15,
+              "height": 7,
               "element": {
                 "kind": "ElementReference",
-                "name": "panel-7"
+                "name": "panel-10"
               }
             }
           },
@@ -645,9 +1007,9 @@
             "kind": "GridLayoutItem",
             "spec": {
               "x": 0,
-              "y": 15,
+              "y": 10,
               "width": 12,
-              "height": 15,
+              "height": 7,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-8"
@@ -658,12 +1020,38 @@
             "kind": "GridLayoutItem",
             "spec": {
               "x": 12,
-              "y": 15,
+              "y": 10,
               "width": 12,
-              "height": 15,
+              "height": 7,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-7"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 17,
+              "width": 12,
+              "height": 7,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-6"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 12,
+              "y": 17,
+              "width": 12,
+              "height": 7,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-9"
               }
             }
           }
