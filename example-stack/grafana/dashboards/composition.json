@@ -3,8 +3,8 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "gjd44v",
-    "generation": 4,
-    "creationTimestamp": "2026-08-22T17:50:41Z",
+    "generation": 1,
+    "creationTimestamp": "1970-01-01T00:00:00Z",
     "labels": {},
     "annotations": {}
   },
@@ -495,7 +495,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"composition\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"composition\" and\n       r[\"_field\"] != \"comment\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: true\n     )"
                       }
                     },
                     "refId": "A",
@@ -671,7 +671,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"composition\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: false\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"composition\" and\n       r[\"_field\"] != \"comment\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\"\n       ]\n     )\n  |> group()\n  |> pivot(\n       rowKey: [\n         \"_time\"\n       ],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"],\n       desc: true\n     )"
                       }
                     },
                     "refId": "A",
@@ -733,7 +733,150 @@
                     "properties": [
                       {
                         "id": "custom.width",
-                        "value": 157
+                        "value": 99
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "bmi"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 50
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "bmr"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 66
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "fat_free_mass"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 108
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "fat_mass"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 74
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "fat_percent"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 90
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "ffmi"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 50
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "pb_bench"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "pb_squat"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 75
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "soft_lean_mass"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 118
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "waist"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 50
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "weight"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 59
                       }
                     ]
                   }
