@@ -219,7 +219,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "dashed+area"
+                      "mode": "area"
                     }
                   }
                 },
@@ -360,7 +360,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "dashed+area"
+                      "mode": "area"
                     }
                   }
                 },
@@ -389,11 +389,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "import \"dict\"\n\nweatherMap = [\n    \"0\": \"☀️\",\n    \"1\": \"🌤️\",\n    \"2\": \"🌥️\",\n    \"3\": \"☁️\",\n    \"45\": \"🌫️\", \"48\": \"🌫️\",\n    \"51\": \"🌦️\", \"53\": \"🌦️\", \"55\": \"🌦️\",\n    \"56\": \"🥶\", \"57\": \"🥶\",\n    \"61\": \"🌧️\", \"63\": \"🌧️\", \"65\": \"🌧️\",\n    \"66\": \"🧊\", \"67\": \"🧊\",\n    \"71\": \"❄️\", \"73\": \"❄️\", \"75\": \"❄️\",\n    \"77\": \"🌨️\",\n    \"80\": \"🌦️\", \"81\": \"🌦️\", \"82\": \"🌦️\",\n    \"85\": \"🌨️\", \"86\": \"🌨️\",\n    \"95\": \"⛈️\",\n    \"96\": \"🌩️\", \"99\": \"🌩️\"\n]\n\nfrom(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"weather_code\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mode,\n       createEmpty: false\n     )\n  |> fill(\n       usePrevious: true\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: dict.get(\n           dict: weatherMap,\n           key: string(v: int(v: r._value)),\n           default: \"❓\"\n         )\n       })\n     )\n  |> pivot(\n       rowKey: [\"_time\"],\n       columnKey: [\"location_name\"],\n       valueColumn: \"_value\"\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "import \"dict\"\n\nweatherMap = [\n    \"0\": \"☀️\",\n    \"1\": \"🌤️\",\n    \"2\": \"🌥️\",\n    \"3\": \"☁️\",\n    \"45\": \"🌫️\", \"48\": \"🌫️\",\n    \"51\": \"🌦️\", \"53\": \"🌦️\", \"55\": \"🌦️\",\n    \"56\": \"🥶\", \"57\": \"🥶\",\n    \"61\": \"🌧️\", \"63\": \"🌧️\", \"65\": \"🌧️\",\n    \"66\": \"🧊\", \"67\": \"🧊\",\n    \"71\": \"❄️\", \"73\": \"❄️\", \"75\": \"❄️\",\n    \"77\": \"🌨️\",\n    \"80\": \"🌦️\", \"81\": \"🌦️\", \"82\": \"🌦️\",\n    \"85\": \"🌨️\", \"86\": \"🌨️\",\n    \"95\": \"⛈️\",\n    \"96\": \"🌩️\", \"99\": \"🌩️\"\n]\n\nfrom(bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"weather_code\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mode,\n       createEmpty: false\n     )\n  |> fill(\n       usePrevious: true\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: dict.get(\n           dict: weatherMap,\n           key: string(v: int(v: r._value)),\n           default: \"❓\"\n         )\n       })\n     )\n  |> pivot(\n       rowKey: [\"_time\"],\n       columnKey: [\"location_name\"],\n       valueColumn: \"_value\"\n     )"
                       }
                     },
                     "refId": "A",
@@ -580,7 +576,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "dashed+area"
+                      "mode": "area"
                     }
                   }
                 },
@@ -726,7 +722,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_alias\"] == \"location_1\" and\n       (\n         r[\"_field\"] == \"dew_point_2m\" or\n         r[\"_field\"] == \"temperature_2m\" or\n         r[\"_field\"] == \"relative_humidity_2m\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n         \"location_alias\"\n       ]\n     )\n  |> pivot(\n       rowKey: [\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> rename(\n       columns: {\n         \"dew_point_2m\": \"Dew Point\",\n         \"temperature_2m\": \"Temperature\",\n         \"relative_humidity_2m\": \"Humidity\"\n       }\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"relative_humidity_2m\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -764,7 +760,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "celsius",
+                  "unit": "humidity",
                   "min": 0,
                   "max": 100,
                   "thresholds": {
@@ -773,6 +769,34 @@
                       {
                         "value": 0,
                         "color": "red"
+                      },
+                      {
+                        "value": 10,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 20,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 30,
+                        "color": "green"
+                      },
+                      {
+                        "value": 50,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 60,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 70,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 80,
+                        "color": "purple"
                       }
                     ]
                   },
@@ -810,33 +834,11 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "off"
+                      "mode": "area"
                     }
                   }
                 },
-                "overrides": [
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "scope": "series",
-                      "options": "Humidity"
-                    },
-                    "properties": [
-                      {
-                        "id": "unit",
-                        "value": "humidity"
-                      },
-                      {
-                        "id": "min",
-                        "value": 0
-                      },
-                      {
-                        "id": "max",
-                        "value": 100
-                      }
-                    ]
-                  }
-                ]
+                "overrides": []
               }
             }
           }
@@ -1038,7 +1040,7 @@
               "height": 7,
               "element": {
                 "kind": "ElementReference",
-                "name": "panel-6"
+                "name": "panel-9"
               }
             }
           },
@@ -1051,7 +1053,7 @@
               "height": 7,
               "element": {
                 "kind": "ElementReference",
-                "name": "panel-9"
+                "name": "panel-6"
               }
             }
           }
