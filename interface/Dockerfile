@@ -13,6 +13,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/
     langgraph \
     matplotlib \
     numpy \
+    polymarket-client \
     scipy \
     "starlette<0.40.0" \
     streamlit
