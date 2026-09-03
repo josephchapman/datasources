@@ -901,19 +901,27 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "mbar",
-                  "min": 980,
-                  "max": 1040,
+                  "unit": "pressurehpa",
+                  "min": 995,
+                  "max": 1030,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
                       {
                         "value": 0,
-                        "color": "green"
+                        "color": "transparent"
+                      },
+                      {
+                        "value": 1000,
+                        "color": "red"
                       },
                       {
                         "value": 1013.25,
                         "color": "blue"
+                      },
+                      {
+                        "value": 1025,
+                        "color": "red"
                       }
                     ]
                   },
