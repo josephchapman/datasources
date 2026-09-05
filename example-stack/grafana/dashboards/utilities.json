@@ -1140,7 +1140,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_electricity_generation\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Daily Generation\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -1173,7 +1173,7 @@
                   "calcs": [
                     "lastNotNull"
                   ],
-                  "fields": "/^daily_electricity_generation$/",
+                  "fields": "/^Daily Generation$/",
                   "values": false
                 },
                 "segmentCount": 40,
@@ -1183,7 +1183,7 @@
                 "showThresholdMarkers": true,
                 "sizing": "auto",
                 "sparkline": false,
-                "textMode": "auto"
+                "textMode": "value_and_name"
               },
               "fieldConfig": {
                 "defaults": {
@@ -1590,6 +1590,304 @@
           }
         }
       },
+      "panel-25": {
+        "kind": "Panel",
+        "spec": {
+          "id": 25,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "import \"array\"\nimport \"date\"\n\nbilling_period_duration_days = 60.0\nannual_allowance_m3 = 33.0\n\n// Fetch the base dataset\nbase_data= from(bucket: \"my-bucket\")\n  |> range(\n\t\t   start: -duration(v: int(v: billing_period_duration_days * 1.5 * 24.0 * 60.0 * 60.0 * 1000000000.0))\n\t   )\n  |> filter(\n\t\t   fn: (r) => \n\t\t\t r._measurement == \"utilities\" and\n\t\t\t r._field == \"water_import\" and\n\t\t\t (\n\t\t\t\t r.source == \"bill\" or\n\t\t\t\t r.source == \"meter\"\n\t\t\t )\n\t\t )\n\n// Extract the most recent record where source is 'bill'\nlast_bill = base_data\n  |> filter(\n\t\t   fn: (r) =>\n\t\t\t r.source == \"bill\"\n\t\t )\n\t|> last()\n\t|> findRecord(\n\t\t   fn: (key) => true,\n\t\t\t idx: 0\n\t\t )\n\n// Extract the most recent record overall (regardless of source)\nlast_record = base_data\n\t|> group()\n  |> last()\n\t|> findRecord(\n\t\t   fn: (key) => true,\n\t\t\t idx: 0\n\t\t )\n\n// Calculate the required scalar values\nlast_bill_time = last_bill._time\nlast_bill_value = last_bill._value\nlast_record_value = last_record._value\n\nnext_bill_time = date.add(\n\tto: last_bill_time,\n\td: duration(v: int(v: billing_period_duration_days * 24.0 * 60.0 * 60.0 * 1000000000.0))\n)\n\n// Convert timestamps to standard nanosecond integers\nnext_bill_ns = int(v: next_bill_time)\nnow_ns = int(v: now())\n\n// Calculate the number of days until the next bill\ndays_until_next_bill = float(v: (next_bill_ns - now_ns)) / 86400000000000.0\n\ncycle_allowance_m3 = annual_allowance_m3 * (billing_period_duration_days / 365.0)\ndaily_allowance_m3 = annual_allowance_m3 / 365.0\ncycle_consumed_m3 = last_record_value - last_bill_value\ncycle_remaining_m3 = cycle_allowance_m3 - cycle_consumed_m3\n\n// assuming consumption continues at daily allowance rate until end of cycle, how many liters will remain within the cycle?\nprojected_surplus_m3 = cycle_remaining_m3 - (daily_allowance_m3 * days_until_next_bill)\nprojected_surplus_liters = projected_surplus_m3 * 1000.0\n\narray.from(\n\trows: [\n\t\t{\n\t\t\tlast_bill_time           : last_bill_time,\n\t\t\tlast_bill_value          : last_bill_value,\n\t\t\tlast_record_value        : last_record_value,\n\t\t\tnext_bill_time           : next_bill_time,\n\t\t\tdays_until_next_bill     : days_until_next_bill,\n\t\t\tcycle_allowance_m3       : cycle_allowance_m3,\n\t\t\tdaily_allowance_m3       : daily_allowance_m3,\n\t\t\tcycle_consumed_m3        : cycle_consumed_m3,\n\t\t\tcycle_remaining_m3       : cycle_remaining_m3,\n\t\t\tprojected_surplus_liters : projected_surplus_liters,\n\t\t\t\"Projected Surplus\"      : projected_surplus_liters\n\t\t}\n\t]\n)"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.75,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "neutral": 0,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^Projected Surplus$/",
+                  "values": false
+                },
+                "segmentCount": 50,
+                "segmentSpacing": 0.1,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "value_and_name"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "litre",
+                  "decimals": 2,
+                  "min": -3000,
+                  "max": 3000,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 0,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 1000,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-26": {
+        "kind": "Panel",
+        "spec": {
+          "id": 26,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1h\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Average Power\"\n       }\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.75,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^Average Power$/",
+                  "values": false
+                },
+                "segmentCount": 50,
+                "segmentSpacing": 0.1,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "value_and_name"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "kwatt",
+                  "min": 0,
+                  "max": 0.333333333,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 0.083333333,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.166666667,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 0.25,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-27": {
+        "kind": "Panel",
+        "spec": {
+          "id": 27,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1h\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Average Power\"\n       }\n     )"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "13.1.0",
+            "spec": {
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.75,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/^Average Power$/",
+                  "values": false
+                },
+                "segmentCount": 40,
+                "segmentSpacing": 0.1,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "value_and_name"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "kwatt",
+                  "min": 0,
+                  "max": 0.333333333,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 0.083333333,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 0.166666667,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.25,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
       "panel-3": {
         "kind": "Panel",
         "spec": {
@@ -1750,7 +2048,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_electricity_consumption\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Daily Consumption\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -1783,7 +2081,7 @@
                   "calcs": [
                     "lastNotNull"
                   ],
-                  "fields": "/^daily_electricity_consumption$/",
+                  "fields": "/^Daily Consumption$/",
                   "values": false
                 },
                 "segmentCount": 50,
@@ -1793,7 +2091,7 @@
                 "showThresholdMarkers": true,
                 "sizing": "auto",
                 "sparkline": false,
-                "textMode": "auto"
+                "textMode": "value_and_name"
               },
               "fieldConfig": {
                 "defaults": {
@@ -1987,7 +2285,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_water_import\"\n       }\n     )\n  |> map(\n       fn: (r) => (\n         { r with \"daily_water_import\": r[\"daily_water_import\"] * 1000.0 }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"daily_water_import\"\n       }\n     )\n  |> map(\n       fn: (r) => (\n         { r with \"Daily Import\": r[\"daily_water_import\"] * 1000.0 }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -2020,7 +2318,7 @@
                   "calcs": [
                     "lastNotNull"
                   ],
-                  "fields": "/^daily_water_import$/",
+                  "fields": "/^Daily Import$/",
                   "values": false
                 },
                 "segmentCount": 45,
@@ -2030,7 +2328,7 @@
                 "showThresholdMarkers": true,
                 "sizing": "auto",
                 "sparkline": false,
-                "textMode": "auto"
+                "textMode": "value_and_name"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2421,7 +2719,7 @@
                                 "spec": {
                                   "x": 0,
                                   "y": 0,
-                                  "width": 15,
+                                  "width": 14,
                                   "height": 6,
                                   "element": {
                                     "kind": "ElementReference",
@@ -2432,13 +2730,26 @@
                               {
                                 "kind": "GridLayoutItem",
                                 "spec": {
-                                  "x": 15,
+                                  "x": 14,
                                   "y": 0,
-                                  "width": 9,
+                                  "width": 5,
                                   "height": 6,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-2"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 19,
+                                  "y": 0,
+                                  "width": 5,
+                                  "height": 6,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-27"
                                   }
                                 }
                               }
@@ -2461,7 +2772,7 @@
                                 "spec": {
                                   "x": 0,
                                   "y": 0,
-                                  "width": 15,
+                                  "width": 14,
                                   "height": 6,
                                   "element": {
                                     "kind": "ElementReference",
@@ -2472,13 +2783,26 @@
                               {
                                 "kind": "GridLayoutItem",
                                 "spec": {
-                                  "x": 15,
+                                  "x": 14,
                                   "y": 0,
-                                  "width": 9,
+                                  "width": 5,
                                   "height": 6,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-4"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 19,
+                                  "y": 0,
+                                  "width": 5,
+                                  "height": 6,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-26"
                                   }
                                 }
                               }
@@ -2501,7 +2825,7 @@
                                 "spec": {
                                   "x": 0,
                                   "y": 0,
-                                  "width": 15,
+                                  "width": 14,
                                   "height": 6,
                                   "element": {
                                     "kind": "ElementReference",
@@ -2512,13 +2836,26 @@
                               {
                                 "kind": "GridLayoutItem",
                                 "spec": {
-                                  "x": 15,
+                                  "x": 14,
                                   "y": 0,
-                                  "width": 9,
+                                  "width": 5,
                                   "height": 6,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-6"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 19,
+                                  "y": 0,
+                                  "width": 5,
+                                  "height": 6,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-25"
                                   }
                                 }
                               }
