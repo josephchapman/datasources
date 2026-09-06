@@ -87,7 +87,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "pressurepa",
+                  "unit": "",
                   "min": 16.5,
                   "max": 32,
                   "thresholds": {
@@ -618,7 +618,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "pressurepa",
+                  "decimals": 1,
                   "min": 16.5,
                   "max": 32,
                   "thresholds": {
@@ -943,7 +943,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "pressurepa",
+                  "unit": "",
                   "min": 16,
                   "max": 27,
                   "thresholds": {
@@ -1097,7 +1097,6 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "pressurepa",
                   "decimals": 1,
                   "min": 16,
                   "max": 27,
@@ -2018,7 +2017,7 @@
       "timezone": "browser",
       "from": "2024-01-01",
       "to": "now",
-      "autoRefresh": "",
+      "autoRefresh": "1m",
       "autoRefreshIntervals": [
         "5s",
         "10s",

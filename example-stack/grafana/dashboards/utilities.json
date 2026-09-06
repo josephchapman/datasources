@@ -3182,7 +3182,7 @@
       "timezone": "browser",
       "from": "now-6M",
       "to": "now",
-      "autoRefresh": "",
+      "autoRefresh": "1m",
       "autoRefreshIntervals": [
         "5s",
         "10s",
