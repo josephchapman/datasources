@@ -520,7 +520,7 @@
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                   "calcs": [
-                    "lastNotNull"
+                    "firstNotNull"
                   ],
                   "fields": "",
                   "values": false
