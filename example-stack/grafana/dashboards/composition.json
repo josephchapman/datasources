@@ -879,6 +879,19 @@
                         "value": 59
                       }
                     ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "pb_deadlift"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 88
+                      }
+                    ]
                   }
                 ]
               }
