@@ -111,7 +111,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"apparent_temperature\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"apparent_temperature\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -248,7 +248,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"wind_speed_10m\"\n     )\n  |> aggregateWindow(\n       every: 6h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"wind_speed_10m\"\n     )\n  |> aggregateWindow(\n       every: 6h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -389,7 +389,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "import \"dict\"\n\nweatherMap = [\n    \"0\": \"☀️\",\n    \"1\": \"🌤️\",\n    \"2\": \"🌥️\",\n    \"3\": \"☁️\",\n    \"45\": \"🌫️\", \"48\": \"🌫️\",\n    \"51\": \"🌦️\", \"53\": \"🌦️\", \"55\": \"🌦️\",\n    \"56\": \"🥶\", \"57\": \"🥶\",\n    \"61\": \"🌧️\", \"63\": \"🌧️\", \"65\": \"🌧️\",\n    \"66\": \"🧊\", \"67\": \"🧊\",\n    \"71\": \"❄️\", \"73\": \"❄️\", \"75\": \"❄️\",\n    \"77\": \"🌨️\",\n    \"80\": \"🌦️\", \"81\": \"🌦️\", \"82\": \"🌦️\",\n    \"85\": \"🌨️\", \"86\": \"🌨️\",\n    \"95\": \"⛈️\",\n    \"96\": \"🌩️\", \"99\": \"🌩️\"\n]\n\nfrom(bucket: \"my-bucket\")\n  |> range(\n       start: time(v: int(v: v.timeRangeStart) - int(v: duration(v: 86400000000000))),\n       stop: time(v: int(v: v.timeRangeStop) + int(v: duration(v: 86400000000000))),\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"weather_code\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mode,\n       createEmpty: false\n     )\n  |> fill(\n       usePrevious: true\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: dict.get(\n           dict: weatherMap,\n           key: string(v: int(v: r._value)),\n           default: \"❓\"\n         )\n       })\n     )\n  |> pivot(\n       rowKey: [\"_time\"],\n       columnKey: [\"location_name\"],\n       valueColumn: \"_value\"\n     )"
+                        "query": "import \"dict\"\n\nweatherMap = [\n    \"0\": \"☀️\",\n    \"1\": \"🌤️\",\n    \"2\": \"🌥️\",\n    \"3\": \"☁️\",\n    \"45\": \"🌫️\", \"48\": \"🌫️\",\n    \"51\": \"🌦️\", \"53\": \"🌦️\", \"55\": \"🌦️\",\n    \"56\": \"🥶\", \"57\": \"🥶\",\n    \"61\": \"🌧️\", \"63\": \"🌧️\", \"65\": \"🌧️\",\n    \"66\": \"🧊\", \"67\": \"🧊\",\n    \"71\": \"❄️\", \"73\": \"❄️\", \"75\": \"❄️\",\n    \"77\": \"🌨️\",\n    \"80\": \"🌦️\", \"81\": \"🌦️\", \"82\": \"🌦️\",\n    \"85\": \"🌨️\", \"86\": \"🌨️\",\n    \"95\": \"⛈️\",\n    \"96\": \"🌩️\", \"99\": \"🌩️\"\n]\n\nfrom(bucket: \"my-bucket\")\n  |> range(\n       start: time(v: int(v: v.timeRangeStart) - int(v: duration(v: 86400000000000))),\n       stop: time(v: int(v: v.timeRangeStop) + int(v: duration(v: 86400000000000))),\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"weather_code\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mode,\n       createEmpty: false\n     )\n  |> fill(\n       usePrevious: true\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: dict.get(\n           dict: weatherMap,\n           key: string(v: int(v: r._value)),\n           default: \"❓\"\n         )\n       })\n     )\n  |> pivot(\n       rowKey: [\"_time\"],\n       columnKey: [\"location_name\"],\n       valueColumn: \"_value\"\n     )"
                       }
                     },
                     "refId": "A",
@@ -480,7 +480,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"precipitation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"precipitation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -605,7 +605,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"cloud_cover\"\n     )\n  |> aggregateWindow(\n       every: 6h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"cloud_cover\"\n     )\n  |> aggregateWindow(\n       every: 6h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -722,7 +722,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"relative_humidity_2m\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"relative_humidity_2m\"\n     )\n  |> aggregateWindow(\n       every: 4h,\n       fn: mean,\n       createEmpty: false\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -863,7 +863,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"_field\"] == \"pressure_msl\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
+                        "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\" and\n       r[\"location_name\"] =~ /${location:regex}/ and\n       r[\"_field\"] == \"pressure_msl\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"location_alias\",\n         \"latitude\",\n         \"longitude\",\n         \"timezone\",\n       ]\n     )"
                       }
                     },
                     "refId": "A",
@@ -1108,10 +1108,10 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "prometheus",
+            "group": "influxdb",
             "version": "v0",
             "spec": {
-              "__legacyStringValue": "label_values({__name__=~\"weather_.*\"}, location)"
+              "query": "from(bucket: \"my-bucket\")\n  |> range(\n       start: v.timeRangeStart,\n       stop: v.timeRangeStop,\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"weather\"\n     )\n  |> keep(columns: [\"location_name\"])\n  |> distinct(column: \"location_name\")"
             }
           },
           "regex": "",
