@@ -25,6 +25,54 @@
           "name": "Annotations & Alerts",
           "builtIn": true
         }
+      },
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "influxdb",
+            "version": "v0",
+            "spec": {
+              "expr": "",
+              "interval": "",
+              "query": "from(bucket: \"my-bucket\")\n  |>  range(\n        start: 0,\n        stop: now()\n      )\n  |>  filter(\n        fn: (r) =>\n        r[\"_measurement\"] == \"composition\" and\n        r[\"_field\"] == \"comment\" and (\n          r[\"_value\"] == \"cut_begin\" or\n          r[\"_value\"] == \"cut_end\"\n        )\n      )\n  |>  sort(\n        columns: [\"_time\"]\n      )\n  |>  group()\n  |>  map(\n        fn: (r) =>\n        ({ r with idx: 1})\n      )\n  |>  cumulativeSum(\n        columns: [\"idx\"]\n      )\n  |>  map(\n        fn: (r) =>\n        ({ \n          r with\n          pair_id: (r.idx + 1) / 2\n        })\n      )\n  |>  pivot(\n        rowKey:[\"pair_id\"],\n        columnKey: [\"_value\"],\n        valueColumn: \"_time\"\n      )\n  |>  map(\n        fn: (r) =>\n        ({\n          title: \"Cut\",\n          text: string(v: r.pair_id),\n          time: r.cut_begin,\n          timeEnd: r.cut_end\n        })\n      )",
+              "refId": "Anno"
+            },
+            "labels": {
+              "grafana.app/export-label": "influxdb-1",
+              "grafana.app/export-datasource-name": "InfluxDB"
+            }
+          },
+          "enable": true,
+          "hide": false,
+          "iconColor": "text",
+          "name": "Cuts"
+        }
+      },
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "influxdb",
+            "version": "v0",
+            "spec": {
+              "expr": "",
+              "interval": "",
+              "query": "from(bucket: \"my-bucket\")\n  |>  range(\n        start: 0,\n        stop: now()\n      )\n  |>  filter(\n        fn: (r) =>\n        r[\"_measurement\"] == \"composition\" and\n        r[\"_field\"] == \"comment\" and (\n          r[\"_value\"] == \"break_begin\" or\n          r[\"_value\"] == \"break_end\"\n        )\n      )\n  |>  sort(\n        columns: [\"_time\"]\n      )\n  |>  group()\n  |>  map(\n        fn: (r) =>\n        ({ r with idx: 1})\n      )\n  |>  cumulativeSum(\n        columns: [\"idx\"]\n      )\n  |>  map(\n        fn: (r) =>\n        ({ \n          r with\n          pair_id: (r.idx + 1) / 2\n        })\n      )\n  |>  pivot(\n        rowKey:[\"pair_id\"],\n        columnKey: [\"_value\"],\n        valueColumn: \"_time\"\n      )\n  |>  map(\n        fn: (r) =>\n        ({\n          title: \"Break\",\n          text: string(v: r.pair_id),\n          time: r.break_begin,\n          timeEnd: r.break_end\n        })\n      )",
+              "refId": "Anno"
+            },
+            "labels": {
+              "grafana.app/export-label": "influxdb-1",
+              "grafana.app/export-datasource-name": "InfluxDB"
+            }
+          },
+          "enable": true,
+          "hide": false,
+          "iconColor": "purple",
+          "name": "Breaks"
+        }
       }
     ],
     "cursorSync": "Off",
