@@ -136,6 +136,7 @@ services:
   streamlit:
     container_name: streamlit
     image: interface:latest
+    pull_policy: never
     build:
       context: ..
       dockerfile: interface/Dockerfile
@@ -155,9 +156,7 @@ services:
   juptyerlab:
     container_name: juptyerlab
     image: interface:latest
-    build:
-      context: ..
-      dockerfile: interface/Dockerfile
+    pull_policy: never
     ports:
       - "8888:8888"
     volumes:
