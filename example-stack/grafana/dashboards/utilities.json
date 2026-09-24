@@ -24,7 +24,7 @@
               "refId": "Anno"
             }
           },
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "text",
           "name": "Occupants",
@@ -58,7 +58,7 @@
               "refId": "Anno"
             }
           },
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "red",
           "name": "Electricity Bills",
@@ -102,7 +102,7 @@
               "refId": "Anno"
             }
           },
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "red",
           "name": "Water Bills",
@@ -142,7 +142,7 @@
               "refId": "Anno"
             }
           },
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "purple",
           "name": "Action Solar",
@@ -178,7 +178,7 @@
               "refId": "Anno"
             }
           },
-          "enable": true,
+          "enable": false,
           "hide": false,
           "iconColor": "purple",
           "name": "Action Water",
@@ -288,12 +288,20 @@
                         "color": "red"
                       },
                       {
-                        "value": 3,
+                        "value": 4.2,
                         "color": "orange"
                       },
                       {
-                        "value": 6,
+                        "value": 5.4,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 6.6,
                         "color": "green"
+                      },
+                      {
+                        "value": 7.8,
+                        "color": "light-blue"
                       }
                     ]
                   },
@@ -1172,7 +1180,7 @@
                   "fields": "/^Daily Generation$/",
                   "values": false
                 },
-                "segmentCount": 48,
+                "segmentCount": 75,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1194,12 +1202,20 @@
                         "color": "red"
                       },
                       {
-                        "value": 3,
+                        "value": 4.2,
                         "color": "orange"
                       },
                       {
-                        "value": 6,
+                        "value": 5.4,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 6.6,
                         "color": "green"
+                      },
+                      {
+                        "value": 7.8,
+                        "color": "light-blue"
                       }
                     ]
                   },
@@ -1831,7 +1847,7 @@
                   "fields": "/^Average Power$/",
                   "values": false
                 },
-                "segmentCount": 48,
+                "segmentCount": 75,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1853,12 +1869,20 @@
                         "color": "red"
                       },
                       {
-                        "value": 125,
+                        "value": 175,
                         "color": "orange"
                       },
                       {
-                        "value": 250,
+                        "value": 225,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 275,
                         "color": "green"
+                      },
+                      {
+                        "value": 325,
+                        "color": "light-blue"
                       }
                     ]
                   },
