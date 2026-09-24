@@ -1,0 +1,26 @@
+{
+  "@jupyterlab/apputils-extension:themes": {
+    "theme": "JupyterLab Dark"
+  },
+  "@jupyterlab/filebrowser-extension:browser": {
+    "showLastModifiedColumn": false
+  },
+  "@jupyterlab/docmanager-extension:plugin": {
+    "autosave": false,
+    "toolbar": [
+      { "name": "save", "disabled": true }
+    ]
+  },
+  "@jupyterlab/notebook-extension:tracker": {
+    "toolbar": [
+      { "name": "save", "disabled": true },
+      { "name": "insert", "disabled": true },
+      { "name": "cut", "disabled": true },
+      { "name": "copy", "disabled": true },
+      { "name": "paste", "disabled": true }
+    ]
+  },
+  "@jupyterlab/cell-toolbar-extension:plugin": {
+    "disabled": true
+  }
+}

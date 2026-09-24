@@ -153,14 +153,21 @@ services:
       - streamlit/🏠_Home.py
       - --server.address=0.0.0.0
       - --server.port=8501
-  juptyerlab:
-    container_name: juptyerlab
+  jupyterlab:
+    container_name: jupyterlab
     image: interface:latest
     pull_policy: never
     ports:
       - "8888:8888"
+    env_file:
+      - path: ../interface/vars.env.example
+        required: false
+      - path: ../interface/vars.env
+        required: false
     volumes:
       - ../interface/jupyter:/usr/src/app/jupyter:ro
+      - ../interface/config/jupyter/labconfig/page_config.json:/usr/local/etc/jupyter/labconfig/page_config.json:ro
+      - ../interface/config/jupyter/settings/overrides.json:/usr/local/share/jupyter/lab/settings/overrides.json:ro
     restart: unless-stopped
     entrypoint: /usr/local/bin/jupyter
     command:

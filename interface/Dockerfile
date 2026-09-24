@@ -3,6 +3,7 @@ WORKDIR /usr/src/app
 RUN     apt-get update \
     &&  apt-get install -y --no-install-recommends \
             bsdextrautils \
+            jq \
     &&  apt-get clean \    
     &&  rm -rf /var/lib/apt/lists/*
 RUN     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh \
@@ -18,7 +19,12 @@ RUN     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/lo
             langgraph \
             matplotlib \
             numpy \
+            openmeteo-requests \
+            pandas \
             polymarket-client \
+            requests \
+            requests-cache \
+            retry_requests \
             scipy \
             "starlette<0.40.0" \
             streamlit
@@ -27,5 +33,6 @@ RUN     python -m ipykernel install \
             --name python3 \
             --display-name "Python 3 (ipykernel)" \
     &&  python -m bash_kernel.install
+RUN     mkdir -p /usr/local/share/jupyter/lab/settings/
 EXPOSE  8501
 EXPOSE  8888

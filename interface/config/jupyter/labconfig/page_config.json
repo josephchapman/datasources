@@ -1,0 +1,6 @@
+{
+  "disabledExtensions": {
+    "@jupyterlab/launcher-extension:plugin": true,
+    "@jupyterlab/apputils-extension:announcements": true
+  }
+}
