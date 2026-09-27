@@ -239,7 +239,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" and\n       r[\"source\"] == \"bill\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Bill\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" and\n       r[\"source\"] == \"bill\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Bill\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -254,7 +254,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" and\n       r[\"source\"] == \"meter\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Meter\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" and\n       r[\"source\"] == \"meter\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Meter\"\n       }\n     )"
                       }
                     },
                     "refId": "B",
@@ -429,7 +429,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_ratio\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_ratio\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -465,7 +465,7 @@
                   "fields": "/^electricity_ratio$/",
                   "values": false
                 },
-                "segmentCount": 40,
+                "segmentCount": 52,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": true,
@@ -478,7 +478,7 @@
                 "defaults": {
                   "unit": "none",
                   "min": 0,
-                  "max": 2,
+                  "max": 2.6,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -525,10 +525,33 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"monthly_profit\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"bill\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
                       }
                     },
                     "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
+                      }
+                    },
+                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -553,7 +576,7 @@
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "bottom",
-                  "showLegend": false
+                  "showLegend": true
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -564,8 +587,8 @@
               "fieldConfig": {
                 "defaults": {
                   "unit": "currencyEUR",
-                  "min": -10,
-                  "max": 10,
+                  "min": -15,
+                  "max": 15,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -617,7 +640,23 @@
                     }
                   }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "bill"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "text",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -642,7 +681,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"monthly_profit\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"monthly_profit\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -678,7 +717,7 @@
                   "fields": "/^monthly_profit$/",
                   "values": false
                 },
-                "segmentCount": 30,
+                "segmentCount": 60,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": true,
@@ -691,8 +730,8 @@
                 "defaults": {
                   "unit": "currencyEUR",
                   "decimals": 2,
-                  "min": -10,
-                  "max": 10,
+                  "min": -15,
+                  "max": 15,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1189,7 +1228,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Daily Generation\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Daily Generation\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -1225,7 +1264,7 @@
                   "fields": "/^Daily Generation$/",
                   "values": false
                 },
-                "segmentCount": 75,
+                "segmentCount": 45,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1760,7 +1799,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1h\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Average Power\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Average Power\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -1856,7 +1895,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1h\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Average Power\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Average Power\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -1892,7 +1931,7 @@
                   "fields": "/^Average Power$/",
                   "values": false
                 },
-                "segmentCount": 75,
+                "segmentCount": 45,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1960,7 +1999,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\" and\n       r[\"source\"] == \"bill\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Bill\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\" and\n       r[\"source\"] == \"bill\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Bill\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -1975,7 +2014,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\" and\n       r[\"source\"] == \"meter\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Meter\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\" and\n       r[\"source\"] == \"meter\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Meter\"\n       }\n     )"
                       }
                     },
                     "refId": "B",
@@ -2129,7 +2168,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Daily Consumption\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> rename(\n       columns: {\n         \"_value\": \"Daily Consumption\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -2225,7 +2264,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\" and\n       r[\"source\"] == \"bill\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         _value: \"Bill\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\" and\n       r[\"source\"] == \"bill\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         _value: \"Bill\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -2240,7 +2279,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\" and\n       r[\"source\"] == \"meter\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         _value: \"Meter\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\" and\n       r[\"source\"] == \"meter\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         _value: \"Meter\"\n       }\n     )"
                       }
                     },
                     "refId": "B",
@@ -2390,7 +2429,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         _value: \"Daily Import\"\n       }\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) => \n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"water_import\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_field\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1d\n     )\n  |> map(\n       fn: (r) => ({\n         r with\n         _value: r._value * 1000.0\n       })\n     )\n  |> rename(\n       columns: {\n         _value: \"Daily Import\"\n       }\n     )"
                       }
                     },
                     "refId": "A",
@@ -2487,10 +2526,33 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_net\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"  and\n       r[\"source\"] == \"bill\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
                       }
                     },
                     "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"  and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
+                      }
+                    },
+                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -2515,7 +2577,7 @@
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "bottom",
-                  "showLegend": false
+                  "showLegend": true
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2577,7 +2639,23 @@
                     }
                   }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "bill"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "text",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -2602,7 +2680,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_net\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_net\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -2695,10 +2773,33 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"electricity_ratio\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"bill\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
                       }
                     },
                     "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
+                      }
+                    },
+                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -2723,7 +2824,7 @@
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "bottom",
-                  "showLegend": false
+                  "showLegend": true
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2735,7 +2836,7 @@
                 "defaults": {
                   "unit": "none",
                   "min": 0,
-                  "max": 2,
+                  "max": 2.6,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -2791,7 +2892,23 @@
                     }
                   }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "bill"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "text",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
