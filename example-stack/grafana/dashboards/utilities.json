@@ -292,7 +292,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "kwatth",
+                  "unit": "kWh/day",
                   "min": 0,
                   "max": 9,
                   "thresholds": {
@@ -525,11 +525,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"bill\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"bill\" and\n       (\n         r[\"_field\"] == \"electricity_generation\" or\n         r[\"_field\"] == \"electricity_consumption\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -544,11 +540,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       (\n         r[\"_field\"] == \"electricity_generation\" or\n         r[\"_field\"] == \"electricity_consumption\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 30d,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": (r[\"electricity_generation\"] * 0.1050) - (r[\"electricity_consumption\"] * 0.1365)\n         }\n       )\n     )"
                       }
                     },
                     "refId": "B",
@@ -1275,7 +1267,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "kwatth",
+                  "unit": "kWh/day",
                   "min": 0,
                   "max": 9,
                   "thresholds": {
@@ -1687,7 +1679,7 @@
         "spec": {
           "id": 25,
           "title": "",
-          "description": "",
+          "description": "How much of the cycle's allowance will remain at the next predicted billing date, assuming water is consumed at the allowance's rate from the latest meter reading until the next bill.\n\nA negative value indicates the volume of higher-rate tariff consumed.\n\nA positive value indicates the volume of lower-rate tariff still available.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2052,7 +2044,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "kwatth",
+                  "unit": "kWh/day",
                   "min": 0,
                   "max": 12,
                   "thresholds": {
@@ -2215,7 +2207,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "kwatth",
+                  "unit": "kWh/day",
                   "min": 0,
                   "max": 12,
                   "thresholds": {
@@ -2317,7 +2309,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "litre",
+                  "unit": "L/day",
                   "min": 0,
                   "max": 270,
                   "thresholds": {
@@ -2476,7 +2468,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "litre",
+                  "unit": "L/day",
                   "decimals": 0,
                   "min": 0,
                   "max": 270,
@@ -2526,11 +2518,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"  and\n       r[\"source\"] == \"bill\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"  and\n       r[\"source\"] == \"bill\" and\n       (\n         r[\"_field\"] == \"electricity_generation\" or\n         r[\"_field\"] == \"electricity_consumption\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -2545,11 +2533,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"  and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\"  and\n       r[\"source\"] == \"meter\" and\n       (\n         r[\"_field\"] == \"electricity_generation\" or\n         r[\"_field\"] == \"electricity_consumption\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": r[\"electricity_generation\"] - r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "B",
@@ -2773,11 +2757,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"bill\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"bill\" and\n       (\n         r[\"_field\"] == \"electricity_generation\" or\n         r[\"_field\"] == \"electricity_consumption\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"bill\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "A",
@@ -2792,11 +2772,7 @@
                       "group": "influxdb",
                       "version": "v0",
                       "spec": {
-                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       r[\"_field\"] == \"electricity_generation\" or r[\"_field\"] == \"electricity_consumption\"\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "influxdb-1",
-                        "grafana.app/export-datasource-name": "InfluxDB"
+                        "query": "from (bucket: \"my-bucket\")\n  |> range(\n       start: 0,\n       stop: v.timeRangeStop\n     )\n  |> filter(\n       fn: (r) =>\n       r[\"_measurement\"] == \"utilities\" and\n       r[\"source\"] == \"meter\" and\n       (\n         r[\"_field\"] == \"electricity_generation\" or\n         r[\"_field\"] == \"electricity_consumption\"\n       )\n     )\n  |> drop(\n       columns: [\n         \"_measurement\",\n         \"_start\",\n         \"_stop\",\n         \"source\"\n       ]\n     )\n  |> pivot(\n       rowKey:[\"_time\"],\n       columnKey: [\"_field\"],\n       valueColumn: \"_value\"\n     )\n  |> sort(\n       columns: [\"_time\"]\n     )\n  |> derivative(\n       unit: 1h,\n       columns: [\n        \"electricity_generation\",\n        \"electricity_consumption\"\n       ]\n     )\n  |> map(\n       fn: (r) => (\n         {\n           \"_time\": r[\"_time\"],\n           \"meter\": r[\"electricity_generation\"] / r[\"electricity_consumption\"]\n         }\n       )\n     )"
                       }
                     },
                     "refId": "B",
