@@ -294,7 +294,7 @@
                 "defaults": {
                   "unit": "kWh/day",
                   "min": 0,
-                  "max": 9,
+                  "max": 8.76,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -303,19 +303,19 @@
                         "color": "transparent"
                       },
                       {
-                        "value": 4.2,
+                        "value": 3.96,
                         "color": "orange"
                       },
                       {
-                        "value": 5.4,
+                        "value": 5.16,
                         "color": "yellow"
                       },
                       {
-                        "value": 6.6,
+                        "value": 6.36,
                         "color": "green"
                       },
                       {
-                        "value": 7.8,
+                        "value": 7.56,
                         "color": "transparent"
                       }
                     ]
@@ -354,7 +354,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "dashed+area"
+                      "mode": "area"
                     }
                   }
                 },
@@ -1256,7 +1256,7 @@
                   "fields": "/^Daily Generation$/",
                   "values": false
                 },
-                "segmentCount": 45,
+                "segmentCount": 73,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1269,7 +1269,7 @@
                 "defaults": {
                   "unit": "kWh/day",
                   "min": 0,
-                  "max": 9,
+                  "max": 8.76,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1278,19 +1278,19 @@
                         "color": "red"
                       },
                       {
-                        "value": 4.2,
+                        "value": 3.96,
                         "color": "orange"
                       },
                       {
-                        "value": 5.4,
+                        "value": 5.16,
                         "color": "yellow"
                       },
                       {
-                        "value": 6.6,
+                        "value": 6.36,
                         "color": "green"
                       },
                       {
-                        "value": 7.8,
+                        "value": 7.56,
                         "color": "light-blue"
                       }
                     ]
@@ -1827,7 +1827,7 @@
                   "fields": "/^Average Power$/",
                   "values": false
                 },
-                "segmentCount": 48,
+                "segmentCount": 73,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1840,20 +1840,28 @@
                 "defaults": {
                   "unit": "watt",
                   "min": 0,
-                  "max": 500,
+                  "max": 365,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
                       {
                         "value": 0,
+                        "color": "light-blue"
+                      },
+                      {
+                        "value": 115,
                         "color": "green"
                       },
                       {
-                        "value": 250,
+                        "value": 165,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 215,
                         "color": "orange"
                       },
                       {
-                        "value": 375,
+                        "value": 265,
                         "color": "red"
                       }
                     ]
@@ -1923,7 +1931,7 @@
                   "fields": "/^Average Power$/",
                   "values": false
                 },
-                "segmentCount": 45,
+                "segmentCount": 73,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -1936,7 +1944,7 @@
                 "defaults": {
                   "unit": "watt",
                   "min": 0,
-                  "max": 375,
+                  "max": 365,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1945,19 +1953,19 @@
                         "color": "red"
                       },
                       {
-                        "value": 175,
+                        "value": 165,
                         "color": "orange"
                       },
                       {
-                        "value": 225,
+                        "value": 215,
                         "color": "yellow"
                       },
                       {
-                        "value": 275,
+                        "value": 265,
                         "color": "green"
                       },
                       {
-                        "value": 325,
+                        "value": 315,
                         "color": "light-blue"
                       }
                     ]
@@ -2046,20 +2054,28 @@
                 "defaults": {
                   "unit": "kWh/day",
                   "min": 0,
-                  "max": 12,
+                  "max": 8.76,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
                       {
                         "value": 0,
+                        "color": "light-blue"
+                      },
+                      {
+                        "value": 2.76,
                         "color": "green"
                       },
                       {
-                        "value": 6,
+                        "value": 3.96,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 5.16,
                         "color": "orange"
                       },
                       {
-                        "value": 9,
+                        "value": 6.36,
                         "color": "red"
                       }
                     ]
@@ -2098,7 +2114,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "dashed+area"
+                      "mode": "area"
                     }
                   }
                 },
@@ -2196,7 +2212,7 @@
                   "fields": "/^Daily Consumption$/",
                   "values": false
                 },
-                "segmentCount": 48,
+                "segmentCount": 73,
                 "segmentSpacing": 0.1,
                 "shape": "gauge",
                 "showThresholdLabels": false,
@@ -2209,20 +2225,28 @@
                 "defaults": {
                   "unit": "kWh/day",
                   "min": 0,
-                  "max": 12,
+                  "max": 8.76,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
                       {
                         "value": 0,
+                        "color": "light-blue"
+                      },
+                      {
+                        "value": 2.76,
                         "color": "green"
                       },
                       {
-                        "value": 6,
+                        "value": 3.96,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 5.16,
                         "color": "orange"
                       },
                       {
-                        "value": 9,
+                        "value": 6.36,
                         "color": "red"
                       }
                     ]
@@ -2359,7 +2383,7 @@
                       "mode": "none"
                     },
                     "thresholdsStyle": {
-                      "mode": "dashed+area"
+                      "mode": "area"
                     }
                   }
                 },
@@ -2481,10 +2505,6 @@
                       },
                       {
                         "value": 90,
-                        "color": "orange"
-                      },
-                      {
-                        "value": 180,
                         "color": "red"
                       }
                     ]
