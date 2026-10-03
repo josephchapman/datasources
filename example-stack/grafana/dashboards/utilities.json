@@ -260,6 +260,25 @@
                     "refId": "B",
                     "hidden": false
                   }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "influxdb",
+                      "version": "v0",
+                      "spec": {
+                        "query": "meter =\n  from(bucket: \"my-bucket\")\n    |> range(start: 0, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"utilities\" and r._field == \"electricity_generation\" and r.source == \"meter\")\n    |> group()\n    |> keep(columns: [\"_time\"])\n    |> map(fn: (r) => ({_time: r._time, _value: 0.0, kind: \"meter\"}))\n\nweather =\n  from(bucket: \"my-bucket\")\n    |> range(start: 0, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"weather\" and r.location_alias == \"location_1\" and (r._field == \"cloud_cover\" or r._field == \"is_day\"))\n    |> group()\n    |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> filter(fn: (r) => r.is_day == 1.0 and \"${showCloudCover}\" == \"true\")\n    |> map(fn: (r) => ({_time: r._time, _value: r.cloud_cover, kind: \"weather\"}))\n\nmeter_count = meter\n  |> group()\n  |> count(column: \"_value\")\n  |> findRecord(fn: (key) => true, idx: 0)\n\nunion(tables: [meter, weather])\n  |> group()\n  |> map(fn: (r) => ({r with interval: if r.kind == \"meter\" then 1 else 0}))\n  |> sort(columns: [\"_time\"], desc: true)\n  |> cumulativeSum(columns: [\"interval\"])\n  |> filter(fn: (r) => r.interval > 0 and r.interval < meter_count._value)\n  |> group(columns: [\"interval\"])\n  |> sort(columns: [\"_time\"], desc: true)\n  |> reduce(\n       identity: {endpoint: time(v: 0), cloud_sum: 0.0, cloud_count: 0},\n       fn: (r, accumulator) => ({\n         endpoint: if r.kind == \"meter\" then r._time else accumulator.endpoint,\n         cloud_sum: if r.kind == \"weather\" then accumulator.cloud_sum + r._value else accumulator.cloud_sum,\n         cloud_count: if r.kind == \"weather\" then accumulator.cloud_count + 1 else accumulator.cloud_count\n       })\n     )\n  |> filter(fn: (r) => r.cloud_count > 0)\n  |> map(fn: (r) => ({_time: r.endpoint, _value: r.cloud_sum / float(v: r.cloud_count)}))\n  |> rename(columns: {_value: \"Cloud Cover\"})\n  |> sort(columns: [\"_time\"])"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "influxdb-1",
+                        "grafana.app/export-datasource-name": "InfluxDB"
+                      }
+                    },
+                    "refId": "C",
+                    "hidden": false
+                  }
                 }
               ],
               "transformations": [],
@@ -401,6 +420,39 @@
                       {
                         "id": "custom.lineInterpolation",
                         "value": "smooth"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "Cloud Cover"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.axisPlacement",
+                        "value": "right"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "percent"
+                      },
+                      {
+                        "id": "max",
+                        "value": 100
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "value": 0,
+                              "color": "transparent"
+                            }
+                          ]
+                        }
                       }
                     ]
                   }
@@ -3417,7 +3469,20 @@
       "fiscalYearStartMonth": 0
     },
     "title": "Utilities",
-    "variables": [],
+    "variables": [
+      {
+        "kind": "SwitchVariable",
+        "spec": {
+          "name": "showCloudCover",
+          "current": "false",
+          "enabledValue": "true",
+          "disabledValue": "false",
+          "label": "Show Cloud Cover",
+          "hide": "dontHide",
+          "skipUrlSync": false
+        }
+      }
+    ],
     "preferences": {
       "layout": {
         "kind": "GridLayout",
